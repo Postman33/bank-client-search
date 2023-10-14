@@ -15,30 +15,65 @@
   text-align: center;
 }
 
-.spinner {
-  border: 5px solid transparent;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)); /* Начальный цвет */
-  background-size: 150% 150%;
-  animation: spin 1s linear infinite, gradientShift 3s infinite, ghosting 1s infinite;
-  border-image: linear-gradient(60deg, #f06, #9f6);
-  border-image-slice: 1;
+<style>
+ .loader {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   height: 100vh;
+   position: relative;
+ }
+
+.parallelogram {
+  width: 100px;
+  height: 30px;
+  background-color: #00aaff;
+  transform: skew(-20deg);
+  position: absolute;
+  animation-duration: 1.2s;
+  animation-timing-function: cubic-bezier(0.250, 0.460, 0.455, 0.940);
+  animation-iteration-count: infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.center {}
+
+.top {
+  animation-name: slideFromTop;
 }
 
-@keyframes gradientShift {
-  0% { border-image-source: linear-gradient(60deg, #f06, #9f6); }
-  50% { border-image-source: linear-gradient(60deg, #9f6, #f06); }
-  100% { border-image-source: linear-gradient(60deg, #f06, #9f6); }
+.bottom {
+  animation-name: slideFromBottom;
 }
 
-@keyframes ghosting {
-  0%, 100% { box-shadow: 0 0 10px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 0, 0, 0.2); }
-  50% { box-shadow: 0 0 15px rgba(0, 0, 0, 0.2), 0 0 25px rgba(0, 0, 0, 0.2), 0 0 35px rgba(0, 0, 0, 0.2); }
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromTop {
+  0% {
+    transform: skew(-20deg);
+  }
+  50% {
+    transform: skew(-20deg) translateY(-42px);
+  }
+  100% {
+    transform: skew(-20deg);
+  }
+}
+
+@keyframes slideFromBottom {
+  0% {
+    transform: skew(-20deg);
+  }
+  50% {
+    transform: skew(-20deg) translateY(42px);
+  }
+  100% {
+    transform: skew(-20deg);
+  }
 }
