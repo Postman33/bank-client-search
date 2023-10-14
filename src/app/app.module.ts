@@ -21,6 +21,11 @@ import {TabMenuModule} from "primeng/tabmenu";
 import {HttpClientModule} from "@angular/common/http";
 import {RouterModule} from "@angular/router";
 import {DropdownModule} from "primeng/dropdown";
+import {CheckboxModule} from "primeng/checkbox";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {InputTextModule} from "primeng/inputtext";
+import {InputNumberModule} from "primeng/inputnumber";
+import {AutoCompleteModule} from "primeng/autocomplete";
 
 @NgModule({
   declarations: [
@@ -47,7 +52,12 @@ import {DropdownModule} from "primeng/dropdown";
     TabMenuModule,
     RouterModule.forRoot([]),
     DropdownModule,
-    HttpClientModule
+    HttpClientModule,
+    CheckboxModule,
+    InputSwitchModule,
+    InputTextModule,
+    InputNumberModule,
+    AutoCompleteModule
   ],
   providers: [],
   bootstrap: [AppComponent]

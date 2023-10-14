@@ -12,11 +12,92 @@
   <!--  (sidebarVisible$ | async) ?? false-->
   <p-tabMenu [model]="tabsItems" [(activeItem)]="activeTab" [scrollable]="true"></p-tabMenu>
 
-  <div *ngIf="activeTab?.id === states.SearchOffice">
-    <h3>Ищем отделения</h3>
-    <p-dropdown [options]="searchOfficeOptions" [(ngModel)]="selectedType" optionLabel="name"></p-dropdown>
+  <div *ngIf="activeTab?.id === states.SearchOffice" style="padding-top: 10px">
+
+
+    <p-card>
+      <ng-template pTemplate="header">
+        <h3>Ищем отделения</h3>
+      </ng-template>
+      <div class="p-col-12 p-md-6">
+        <div class="p-field-checkbox">
+          <p-inputSwitch [(ngModel)]="searchFilters.rko"></p-inputSwitch>
+          <label for="rko">РКО</label>
+        </div>
+      </div>
+
+      <div class="p-col-12 p-md-6">
+        <div class="p-field">
+          <label for="officeType" style="width: 120px">Тип офиса</label>
+          <p-dropdown [(ngModel)]="searchFilters.officeType" [options]="officeTypes"></p-dropdown>
+        </div>
+      </div>
+
+      <!-- SUO Availability -->
+      <div class="p-col-12 p-md-6">
+        <div class="p-field-checkbox">
+          <p-inputSwitch [(ngModel)]="searchFilters.suoAvailability"></p-inputSwitch>
+          <label for="suoAvailability">СУО</label>
+        </div>
+      </div>
+
+      <!-- Has Ramp -->
+      <div class="p-col-12 p-md-6">
+        <div class="p-field-checkbox">
+          <p-inputSwitch [(ngModel)]="searchFilters.hasRamp"></p-inputSwitch>
+          <label for="hasRamp">Рампа</label>
+        </div>
+      </div>
+
+      <!-- Custom Field: Load Type -->
+      <div class="p-col-12">
+        <div class="p-field">
+          <label for="loadType" style="width: 120px">Тип загрузки</label>
+          <input id="loadType" type="text" [(ngModel)]="searchFilters.loadType" pInputText>
+        </div>
+      </div>
+
+      <div class="p-col-12" style="margin-top: 10px">
+        <div class="p-field">
+          <label for="loadType" style="width: 120px">Ваш адрес</label>
+          <p-autoComplete [(ngModel)]="searchFilters.address" [suggestions]="suggestions" (completeMethod)="search($event)"></p-autoComplete>
+        </div>
+      </div>
+
+
+
+      <div class="p-col-12" style="margin-top: 10px">
+        <div class="p-field">
+          <label for="loadType" style="width: 120px">Расстояние поиска, км</label>
+          <p-inputNumber [(ngModel)]="searchFilters.kilometers" [showButtons]="true" buttonLayout="horizontal"
+                         spinnerMode="horizontal"
+                         decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success"
+                         incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" mode="decimal"
+                         [min]="0"
+          >
+
+          </p-inputNumber>
+
+        </div>
+      </div>
+
+
+
+      <ng-template pTemplate="footer">
+        <div style="display: flex; justify-content: center; padding-top: 20px">
+          <button pButton type="button" label="Поиск!"></button>
+        </div>
+      </ng-template>
+    </p-card>
+
+
+
+
     <!-- Ваш контент для Frame 1 здесь -->
   </div>
+
+
+
 
   <div *ngIf="activeTab?.id === states.B">
     <h3>Content of Frame 2</h3>
