@@ -1,0 +1,9 @@
+
+<div id="map"></div>
+<p-button (click)="sidebarStatusIsActive = true" icon="pi pi-arrow-left" class="plus" (onClick)="toggleSidebar()"></p-button>
+<!--<div style="display: flex; justify-content: center; align-items: center; height: 100vh; margin-top: auto; margin-bottom: auto" *ngIf="!isMapLoaded">-->
+<!--  <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(&#45;&#45;surface-ground)" animationDuration=".9s"></p-progressSpinner>-->
+<!--</div>-->
+
+
+<app-loader [show]="!isMapLoaded"></app-loader>
