@@ -3,6 +3,12 @@
            [modal]="false"
 
 >
+  <ng-template pTemplate="header">
+    <div class="sidebar-footer">
+      <img src="assets/logo.png" alt="Your Logo" class="sidebar-logo">
+    </div>
+  </ng-template>
+
   <!--  (sidebarVisible$ | async) ?? false-->
   <p-tabMenu [model]="tabsItems" [(activeItem)]="activeTab" [scrollable]="true"></p-tabMenu>
 
@@ -20,8 +26,6 @@
     <h3>Content of Frame 3</h3>
     <!-- Ваш контент для Frame 2 здесь -->
   </div>
-
-
 
 </p-sidebar>
 

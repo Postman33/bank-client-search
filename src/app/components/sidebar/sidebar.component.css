@@ -7,8 +7,10 @@
 
 }
 
-
-
 :host ::ng-deep .p-tabmenu-nav-container{
   font-size: 11px;
+}
+
+.sidebar-logo {
+  max-width: 75px;
 }

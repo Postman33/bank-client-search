@@ -72,11 +72,27 @@ export class MapComponent implements OnInit {
 
       if (popupData) {
         console.log(popupData)
-        var popupContent = `<h3>
+        var popupContent = `<div class="popup-content">
+    <h3>
         <span class="pi pi-user"></span>
-        <div>Пандус <i class="pi pi-times" style="color: green"></i></div>
+        <div class="popup-title">ОТДЕЛЕНИЕ № #### <i class="pi pi-building icon-green"></i></div>
+    </h3>
+    <div class="popup-section">
+        <div>МЕТРО <i class="pi pi-map-marker icon-green"></i></div>
+        Сокол
+    </div>
+    <div class="popup-section">
+        <div>ПАНДУС <i class="pi pi-times icon-red"></i></div>
+    </div>
+    <div class="popup-section">
+        <div>РКО <i class="pi pi-briefcase icon-green"></i></div>
+    </div>
+    <div class="popup-section">
+        <div>08:00 - 21:00 <i class="pi pi-clock icon-green"></i></div>
+    </div>
 
-${popupData.properties.whenToGo}</h3><p>Load Factor: ${123}</p>`;
+
+${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         let popup = new mapboxgl.Popup()
           .setLngLat(popupData.coordinates)
           .setHTML(popupContent)
