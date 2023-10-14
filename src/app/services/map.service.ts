@@ -38,6 +38,7 @@ export class MapService {
           return {
             type: 'Feature',
             properties: {
+              ...office,
               address: office.address,
               loadFactor: office.loadFactor,
               loadType: determineLoadCategory(office.loadFactor),
