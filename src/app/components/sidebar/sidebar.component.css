@@ -1,0 +1,14 @@
+::ng-deep .p-sidebar {
+  width: 550px !important;
+}
+::ng-deep .p-tabMenu {
+  width: 150px !important;
+  font-size: 5px !important;
+
+}
+
+
+
+:host ::ng-deep .p-tabmenu-nav-container{
+  font-size: 11px;
+}
