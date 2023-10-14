@@ -77,25 +77,38 @@ export class MapComponent implements OnInit {
       }
 
       if (popupData) {
-        var popupContent = `<div class="popup-content">
-    <h3>
-        <span class="pi pi-user"></span>
-        <div class="popup-title">ОТДЕЛЕНИЕ № #### <i class="pi pi-building icon-green"></i></div>
-    </h3>
-    <div class="popup-section">
-        <div>МЕТРО <i class="pi pi-map-marker icon-green"></i></div>
-        Сокол
-    </div>
-    <div class="popup-section">
-        <div>ПАНДУС <i class="pi pi-times icon-red"></i></div>
-    </div>
-    <div class="popup-section">
-        <div>РКО <i class="pi pi-briefcase icon-green"></i></div>
-    </div>
-    <div class="popup-section">
-        <div>08:00 - 21:00 <i class="pi pi-clock icon-green"></i></div>
-    </div>
 
+
+        let dep_id = popupData.properties.id
+        let hasRamp = popupData.properties.hasRamp ? "pi-check icon-green" : "pi-times icon-red"
+        let rko = popupData.properties.rko ? "pi-briefcase icon-green" : "pi-times icon-red"
+
+        let distance = popupData.properties.distance
+        let station = popupData.properties.metroStation != null ?popupData.properties.metroStation : ""
+          let stationIf = popupData.properties.metroStation != null ? "material-symbols-outlined icon-green" : "material-symbols-outlined icon-red"
+
+
+        let dep_id2 = popupData.properties.id
+
+
+        const popupContent = `<div class="popup-content">
+
+        <div class="popup-title"><span class="material-symbols-outlined icon-green" style="position: relative; bottom: 0px;">account_balance</span>ОТДЕЛЕНИЕ № ${dep_id}</div>
+
+
+    <div class="popup-section">
+        <div><span class="${stationIf}" style="position: relative; top: 5px;">train</span>МЕТРО</div>
+        ${station}
+    </div>
+    <div class="popup-section">
+        <div><i class="pi ${hasRamp}"> ПАНДУС</i></div>
+    </div>
+    <div class="popup-section">
+        <div><i class="pi ${rko}"> РКО</i></div>
+    </div>
+    <div class="popup-section">
+        <div><i class="pi pi-clock icon-green"> 08:00 - 21:00</i> </div>
+    </div>
 
 ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         let popup = new mapboxgl.Popup()
@@ -105,7 +118,11 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
       }
     });
 
+
     this.mapService.setMap(this.map);
+
+
+
     this.map.on("load", ()=>{
       this.isMapLoaded = true
 
@@ -149,7 +166,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         // @ts-ignore
         this.map.addImage('atm', image, { sdf: true});
 
-        this.queryService.getOfficesInRadius((center as number[])[0],(center as number[])[1],10).subscribe((data: any[])=>{
+        this.queryService.getOfficesInRadius((center as number[])[0],(center as number[])[1],45).subscribe((data: any[])=>{
 
           console.log('DATA')
           console.log(data)
@@ -170,7 +187,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
   toggleSidebar() {
     this.store.dispatch(toggleSidebar());
-    //this.store.dispatch(showLoader());
   }
 
   showSidebar() {

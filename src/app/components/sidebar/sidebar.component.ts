@@ -7,6 +7,9 @@ import {MenuItem} from "primeng/api";
 import {Frames} from "./frames";
 import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
 import {QueryService} from "../../services/query.service";
+import * as turf from '@turf/turf';
+import {MapService} from "../../services/map.service";
+import {LngLatBoundsLike} from "mapbox-gl";
 
 // Тип обслуживания
 interface TypeService {
@@ -20,7 +23,7 @@ interface TypeService {
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  constructor(private store: Store, private queryService: QueryService) {
+  constructor(private store: Store, private queryService: QueryService, private mapService: MapService) {
   }
 
   states =Frames // Импорт Enum
@@ -118,10 +121,20 @@ export class SidebarComponent implements OnInit {
     let res = this.queryService.searchRoute(+lat,+lng,2)
     res.subscribe( data => {
       console.log(data)
-      this.store.dispatch(setFeaturesRoute({ payload: data }));
+      this.store.dispatch(setFeaturesRoute({ payload: data }))
+      console.log('BBOX')
+      console.log(data)
 
+      let ls = turf.lineString(data)
+      var bbox = turf.bbox(data );
+      var bboxPolygon = turf.transformScale(turf.bboxPolygon(bbox),2.5);
+      console.log(bboxPolygon)
 
-
+      console.log(bbox)
+      this.mapService.getMap().fitBounds(bbox as LngLatBoundsLike, {
+        duration: 2000,
+        zoom: 15
+      })
     })
   }
   test1: any;

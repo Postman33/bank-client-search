@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import mapboxgl, {LngLatLike, MapboxGeoJSONFeature} from 'mapbox-gl';
 import {Office} from "../utils/models";
 import {Point} from "@turf/helpers/dist/js/lib/geojson";
-import {of} from "rxjs";
 import {determineLoadCategory, determineWhenToGO, LoadCategory} from "../utils/loadFactor";
 import {Store} from "@ngrx/store";
 import {buildPopup, removePopup} from "../state/actions";
@@ -103,7 +102,7 @@ export class MapService {
           properties: feature.properties
         }
 
-        this.store.dispatch(buildPopup({ payload: data }));
+        this.store.dispatch(buildPopup({payload: data}));
 
       }
 
@@ -112,7 +111,22 @@ export class MapService {
         this.store.dispatch(removePopup());
 
       })
+      // todo: почему оно вызывается на некоторых feature несколько раз?
+      this.map.on('click', 'locations', (e) => {
+        let features: MapboxGeoJSONFeature[] = this.map.queryRenderedFeatures(e.point, {layers: ["locations"]})
+        let feature = (e.features as MapboxGeoJSONFeature[])[0]
+        console.log(features)
+        this.map.flyTo({
 
+          center: (features[0].geometry as Point).coordinates as LngLatLike,
+          duration: 1500,
+          zoom: 18
+        })
+
+
+        console.log((feature.geometry as Point).coordinates)
+
+      })
 
     });
 

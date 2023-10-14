@@ -1,9 +1,10 @@
 import mapboxgl, {LngLatLike, Point} from "mapbox-gl";
 import {Feature, FeatureCollection} from "@turf/turf";
+import {Office} from "../utils/models";
 export interface PopupData {
   name: string
   coordinates: LngLatLike
-  properties: any,
+  properties: Office
 
 }
 

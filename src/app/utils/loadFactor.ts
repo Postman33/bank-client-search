@@ -29,12 +29,12 @@ export function determineWhenToGO(load: number): string {
   }
 
   if (load >= 90) {
-    return 'приходите через 2 часа';
+    return 'Высокая загруженность';
   } else if (load >= 70) {
-    return 'приходите через 1 час';
+    return 'Средняя загруженность';
   } else if (load >= 50) {
-    return 'приходите через 25 мин';
+    return 'Низкая загруженность';
   } else {
-    return 'можно приходить';
+    return 'Почти никого нет';
   }
 }

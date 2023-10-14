@@ -1,6 +1,7 @@
 import {Point} from "mapbox-gl";
 
 export interface Office {
+
   id: number;
 
   salePointName: string;
@@ -34,5 +35,7 @@ export interface Office {
 
   // кастомные поля
   loadType: string
+
+  whenToGo: any;
 
 }
