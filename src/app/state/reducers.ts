@@ -1,10 +1,10 @@
-import { createReducer, on } from '@ngrx/store';
-import { appUnitialState } from './states';
+import {createReducer, on} from '@ngrx/store';
+import {appInitialState} from './states';
 import * as Actions from './actions';
-import {removePopup, setFeaturesRoute} from "./actions";
+import {buildPopupRoute, setFeaturesRoute} from './actions';
 
 export const sidebarLoaderReducer = createReducer(
-  appUnitialState,
+  appInitialState,
   on(Actions.toggleSidebar, (state) => ({
     ...state,
     sidebarVisible: !state.sidebarVisible
@@ -17,12 +17,17 @@ export const sidebarLoaderReducer = createReducer(
     ...state,
     loaderVisible: false
   })),
-  on(Actions.buildPopup, (state, { payload }) => {
-    console.log('build')
-    return({ ...state, popup: payload })}),
-  on(Actions.removePopup, (state) => ({
-    ...state, popup: null
+  on(Actions.buildPopupOffice, (state, { payload }) => {
+    return({ ...state, popupOffice: payload })}),
+  on(Actions.removePopups, (state) => ({
+    ...state,
+    popupOffice: null,
+    popupRoute: null
   })),
+
+  on(Actions.buildPopupRoute, (state, { payload }) => {
+    return({ ...state, popupRoute: payload })}),
+
   on(Actions.setFeaturesRoute, (state, { payload }) => {
     console.log('setFeaturesRoute')
     return({ ...state, routeFeatures: payload })}),

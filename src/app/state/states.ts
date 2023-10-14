@@ -1,28 +1,39 @@
-import mapboxgl, {LngLatLike, Point} from "mapbox-gl";
-import {Feature, FeatureCollection} from "@turf/turf";
+import {LngLatLike} from "mapbox-gl";
+import {FeatureCollection} from "@turf/turf";
 import {Office} from "../utils/models";
-export interface PopupData {
+
+export interface PopupDataOffice {
   name: string
   coordinates: LngLatLike
   properties: Office
-
 }
-
+export interface RouteData {
+  routeTime: string, // 12 min
+  routeType: string, // Пеший или авто
+  routeLength: number // длина маршрута в км
+}
+export interface PopupDataRoute {
+  name: string
+  coordinates: LngLatLike
+  properties: Office & RouteData
+}
 export interface AppState {
   sidebarVisible: boolean;
   loaderVisible: boolean;
-  popup: PopupData | null,
+  popupOffice: PopupDataOffice | null,
+  popupRoute: PopupDataRoute | null,
   routeFeatures: FeatureCollection
 
 
 }
 
-export const appUnitialState: AppState = {
+export const appInitialState: AppState = {
   sidebarVisible: false,
   loaderVisible: false,
-  popup: null,
+  popupOffice: null,
+  popupRoute: null,
   routeFeatures: {
-    features:[],
-    type:"FeatureCollection"
+    features: [],
+    type: "FeatureCollection"
   }
 };

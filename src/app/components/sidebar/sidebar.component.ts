@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {select, Store} from '@ngrx/store';
 import {Observable} from "rxjs";
 import {selectSidebarVisible} from "../../state/selectors";
-import {buildPopup, setFeaturesRoute, toggleSidebar} from "../../state/actions";
+import {buildPopupOffice, setFeaturesRoute, toggleSidebar} from "../../state/actions";
 import {MenuItem} from "primeng/api";
 import {Frames} from "./frames";
 import {AutoCompleteCompleteEvent} from "primeng/autocomplete";

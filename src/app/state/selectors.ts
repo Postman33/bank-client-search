@@ -1,5 +1,5 @@
-import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { AppState } from './states';
+import {createFeatureSelector, createSelector} from '@ngrx/store';
+import {AppState} from './states';
 
 const featureSelector = createFeatureSelector<AppState>('appState');
 
@@ -13,9 +13,13 @@ export const selectLoaderVisible = createSelector(
   (state: AppState) => state.loaderVisible
 );
 
-export const selectPopupData = createSelector(
+export const selectPopupOData = createSelector(
   featureSelector,
-  (mapState) => mapState.popup
+  (mapState) => mapState.popupOffice
+);
+export const selectPopupRData = createSelector(
+  featureSelector,
+  (mapState) => mapState.popupRoute
 );
 
 export const selectRoadsData = createSelector(

@@ -4,8 +4,8 @@ import {Office} from "../utils/models";
 import {Point} from "@turf/helpers/dist/js/lib/geojson";
 import {determineLoadCategory, determineWhenToGO, LoadCategory} from "../utils/loadFactor";
 import {Store} from "@ngrx/store";
-import {buildPopup, removePopup} from "../state/actions";
-import {PopupData} from "../state/states";
+import {buildPopupOffice, removePopups} from "../state/actions";
+import {PopupDataOffice} from "../state/states";
 
 @Injectable({
   providedIn: 'root'

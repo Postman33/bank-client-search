@@ -3,13 +3,13 @@ import mapboxgl, {LngLatLike, MapboxGeoJSONFeature} from "mapbox-gl";
 import {ScrollPanel} from "primeng/scrollpanel";
 import {MapService} from "../../services/map.service";
 import {Store} from "@ngrx/store";
-import {buildPopup, removePopup, toggleSidebar} from "../../state/actions";
+import {buildPopupOffice, buildPopupRoute, removePopups, toggleSidebar} from "../../state/actions";
 import {QueryService} from "../../services/query.service";
-import {selectPopupData, selectRoadsData} from "../../state/selectors";
+import {selectPopupOData, selectPopupRData, selectRoadsData} from "../../state/selectors";
 import {Point} from "@turf/helpers/dist/js/lib/geojson";
 import {determineLoadCategory, determineWhenToGO, LoadCategory} from "../../utils/loadFactor";
 import {Office} from "../../utils/models";
-import {PopupData} from "../../state/states";
+import {PopupDataOffice} from "../../state/states";
 
 @Component({
   selector: 'app-map',
@@ -59,24 +59,17 @@ export class MapComponent implements OnInit {
     this.map.addControl(new mapboxgl.NavigationControl({}));
 
 
-
-
-      this.store.select(selectPopupData).subscribe(popupData => {
-
+    this.store.select(selectPopupOData).subscribe(popupData => {
       if (popupData === null) {
         this.popup?.remove();
         this.popup = null;
         return
       }
-
       if (this.popup) {
         this.popup.remove();
         this.popup = null;
       }
-
       if (popupData) {
-
-
         let dep_id = popupData.properties.id
         let hasRamp = popupData.properties.hasRamp ? "pi-check icon-green" : "pi-times icon-red"
         let rko = popupData.properties.rko ? "pi-briefcase icon-green" : "pi-times icon-red"
@@ -84,7 +77,6 @@ export class MapComponent implements OnInit {
         let distance = popupData.properties.distance
         let station = popupData.properties.metroStation != null ?popupData.properties.metroStation : ""
           let stationIf = popupData.properties.metroStation != null ? "material-symbols-outlined icon-green" : "material-symbols-outlined icon-red"
-
 
         let dep_id2 = popupData.properties.id
 
@@ -115,7 +107,56 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         this.popup = popup.addTo(this.map);
       }
     });
+    // Route data
 
+    this.store.select(selectPopupRData).subscribe(popupData => {
+      if (popupData === null) {
+        this.popup?.remove();
+        this.popup = null;
+        return
+      }
+      if (this.popup) {
+        this.popup.remove();
+        this.popup = null;
+      }
+      if (popupData) {
+        let dep_id = popupData.properties.id
+        let hasRamp = popupData.properties.hasRamp ? "pi-check icon-green" : "pi-times icon-red"
+        let rko = popupData.properties.rko ? "pi-briefcase icon-green" : "pi-times icon-red"
+
+        let distance = popupData.properties.distance
+        let station = popupData.properties.metroStation != null ? popupData.properties.metroStation : ""
+        let stationIf = popupData.properties.metroStation != null ? "material-symbols-outlined icon-green" : "material-symbols-outlined icon-red"
+
+        let dep_id2 = popupData.properties.id
+
+
+        const popupContent = `<div class="popup-content">
+
+        <div class="popup-title"><span class="material-symbols-outlined icon-green" style="position: relative; bottom: 0px;">account_balance</span>Едем в  № ${dep_id}</div>
+
+
+    <div class="popup-section">
+        <div><span class="${stationIf}" style="position: relative; top: 5px;">train</span>МЕТРО</div>
+        ${station}
+    </div>
+    <div class="popup-section">
+        <div><i class="pi ${hasRamp}"> ПАНДУС</i></div>
+    </div>
+    <div class="popup-section">
+        <div><i class="pi ${rko}"> РКО</i></div>
+    </div>
+    <div class="popup-section">
+        <div><i class="pi pi-clock icon-green"> 08:00 - 21:00</i> </div>
+    </div>
+
+${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
+        let popup = new mapboxgl.Popup()
+          .setLngLat(popupData.coordinates)
+          .setHTML(popupContent)
+        this.popup = popup.addTo(this.map);
+      }
+    });
 
     this.mapService.setMap(this.map);
 
@@ -150,9 +191,33 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           layout: {},
           paint: {
             'line-color': '#2bbae7', // или другой цвет по вашему выбору
-            'line-width': 6
+            'line-width': 12
           }
         });
+
+
+        this.map.on('mouseenter', 'roadLayer', (e) => {
+          // Получите объект (feature) и его свойства
+          console.log(e)
+          if (e.features) {
+            let data: PopupDataOffice = {
+              name: "123",
+              coordinates: this.map.unproject(e.point),
+              properties: featureCollection.features[0].properties as any
+            }
+            console.log('ENTER MOUSE')
+            console.log(featureCollection.features[0])
+            //this.store.dispatch(buildPopupRoute({payload: data}));
+            this.store.dispatch(buildPopupRoute({payload: data}));
+
+          }
+        })
+
+        this.map.on('mouseleave', 'roadLayer', (e) => {
+          this.store.dispatch(removePopups());
+
+
+        })
 
         let coords = (featureCollection.features[featureCollection.features.length - 1].geometry as Point).coordinates
         let coordsBank = (featureCollection.features[0].geometry as Point).coordinates
@@ -338,19 +403,19 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
         // Показать информационное окно над объектом
 
-        let data: PopupData = {
+        let data: PopupDataOffice = {
           name: "123",
           coordinates: (feature.geometry as Point).coordinates as LngLatLike,
           properties: feature.properties
         }
 
-        this.store.dispatch(buildPopup({payload: data}));
+        this.store.dispatch(buildPopupOffice({payload: data}));
 
       }
 
 
       this.map.on('mouseleave', 'locations', (e) => {
-        this.store.dispatch(removePopup());
+        this.store.dispatch(removePopups());
 
       })
       // todo: почему оно вызывается на некоторых feature несколько раз?
