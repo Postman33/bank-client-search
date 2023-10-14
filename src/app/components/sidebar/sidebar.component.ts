@@ -70,6 +70,10 @@ export class SidebarComponent implements OnInit {
         return
       } //TODO: check
       this.sidbarVisible = visible
+
+
+
+
         this.searchOfficeOptions = [
           { name: 'М', code: 'NY' },
           { name: 'Rome', code: 'RM' },
@@ -99,6 +103,7 @@ export class SidebarComponent implements OnInit {
   }
 
 
+  protected readonly toggleSidebar = toggleSidebar;
   searchOfficeOptions: TypeService[] = [
     {name:"", code:""},
     {name:"", code:""},
@@ -118,5 +123,53 @@ export class SidebarComponent implements OnInit {
 
 
     })
+  }
+  test1: any;
+
+  findedElements: any;
+
+  showResponseSection: boolean = false;
+  items: string[] = [];  // предположим, что это список ответов
+
+  // вызывается при нажатии кнопки
+  answers = [
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    {text: 'Ответ 1'},
+    {text: 'Ответ 2'},
+    // ... другие ответы ...
+  ];
+  selectedAnswer: any = null;
+
+  onButtonClick() {
+    // Здесь вы можете добавить логику загрузки данных и присвоения их списку items
+    // ...
+
+    // Затем покажем секцию ответа
+    this.showResponseSection = true;
+  }
+
+  onAnswerClick(answer: any) {
+    // Если уже выбран, снимаем выделение
+    if (this.selectedAnswer === answer) {
+      this.selectedAnswer = null;
+    } else {
+      this.selectedAnswer = answer;
+    }
+    console.log("Вы нажали на:", answer.text);
   }
 }

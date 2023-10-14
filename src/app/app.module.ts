@@ -26,6 +26,7 @@ import {InputSwitchModule} from "primeng/inputswitch";
 import {InputTextModule} from "primeng/inputtext";
 import {InputNumberModule} from "primeng/inputnumber";
 import {AutoCompleteModule} from "primeng/autocomplete";
+import {ListboxModule} from "primeng/listbox";
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import {AutoCompleteModule} from "primeng/autocomplete";
     InputSwitchModule,
     InputTextModule,
     InputNumberModule,
-    AutoCompleteModule
+    AutoCompleteModule,
+    ListboxModule
   ],
   providers: [],
   bootstrap: [AppComponent]

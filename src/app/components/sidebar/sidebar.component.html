@@ -99,13 +99,74 @@
     <!-- Ваш контент для Frame 1 здесь -->
   </div>
 
+  <p-card>
+    <div *ngIf="activeTab?.id === states.B">
+      <!-- Chat container -->
+      <div class="chat-container p-shadow-2">
+        <!-- Messages container -->
+        <div class="messages-container">
+          <!-- Sample message from the bot -->
+          <div class="message bot-message">
+            <div class="bot-icon p-mr-2">
+              🤖 <!-- You can replace this with an actual icon or avatar -->
+            </div>
+            <div class="message-content">Здравствуйте! Я ИИ чат-помощник банка ВТБ. Как я могу вам помочь с поиском отделения или банкомата?</div>
+          </div>
+
+          <!-- Sample message from the user -->
+          <div class="message user-message">
+            <div class="message-content p-mr-2">Я ищу ближайший банкомат.</div>
+            <div class="user-icon">
+              👤 <!-- You can replace this with an actual icon or avatar -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Input for the user to type -->
+        <div class="input-container">
+
+
+          <textarea rows="5" cols="47" pInputTextarea [(ngModel)]="test1"></textarea>
+          <div style="display: flex; justify-content: center; padding-top: 20px">
+            <button pButton type="button" label="пойти нахуй" (click)="onButtonClick()"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Секция ответа, изначально скрытая -->
+
+      <p-card>
+        <div *ngIf="activeTab?.id === states.B">
+          <!-- ... Ваш код чата ... -->
+
+          <!-- Прокручиваемый список ответов -->
+          <p-card>
+            <div *ngIf="activeTab?.id === states.B">
+              <!-- ... Ваш код чата ... -->
+
+              <!-- Прокручиваемый список ответов -->
+              <p-scrollPanel styleClass="custom-scroll" [style]="{width: '100%', height: '200px'}">
+                <div *ngFor="let answer of answers"
+                     (click)="onAnswerClick(answer)"
+                     class="clickable-answer"
+                     [class.selected]="selectedAnswer === answer">
+                  {{ answer.text }}
+                </div>
+              </p-scrollPanel>
+
+            </div>
+          </p-card>
+
+
+        </div>
+      </p-card>
 
 
 
-  <div *ngIf="activeTab?.id === states.B">
-    <h3>Content of Frame 2</h3>
-    <!-- Ваш контент для Frame 2 здесь -->
-  </div>
+      <!-- Ваш контент для Frame 2 здесь -->
+    </div>
+  </p-card>
+
   <div *ngIf="activeTab?.id === states.C">
     <h3>Content of Frame 3</h3>
     <!-- Ваш контент для Frame 2 здесь -->
