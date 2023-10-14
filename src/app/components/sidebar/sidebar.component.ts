@@ -5,6 +5,7 @@ import {selectSidebarVisible} from "../../state/selectors";
 import {toggleSidebar} from "../../state/actions";
 import {MenuItem} from "primeng/api";
 import {Frames} from "./frames";
+import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
 
 // Тип обслуживания
 interface TypeService {
@@ -28,9 +29,29 @@ export class SidebarComponent implements OnInit {
 
   tabsItems: MenuItem[] | undefined;
   activeTab: MenuItem | undefined;
+  suggestions: any;
+
+  search(event: AutoCompleteCompleteEvent) {
+    this.suggestions = [...Array(10).keys()].map(item => event.query + '-' + item);
+  }
 
   // ФОРМА
   selectedType : TypeService = {name:"", code:""} // тип обслуживания
+  searchFilters = {
+    rko: false,
+    hasRamp: undefined,
+    loadType: undefined,
+    suoAvailability: undefined,
+    officeType: undefined,
+    kilometers: 1,
+    address: undefined
+  }
+
+  officeTypes: any[] = [
+    {label: 'Type 1', value: 'Type1'},
+    {label: 'Type 2', value: 'Type2'},
+    // ... Add other types
+  ];
 
   ngOnInit(): void {
     this.sidebarVisible$.subscribe(visible => {

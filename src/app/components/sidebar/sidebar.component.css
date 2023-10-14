@@ -12,3 +12,28 @@
 :host ::ng-deep .p-tabmenu-nav-container{
   font-size: 11px;
 }
+
+:host ::ng-deep
+.p-inputswitch.p-inputswitch-checked
+.p-inputswitch-slider,
+:host ::ng-deep
+.p-inputswitch.p-inputswitch-checked:hover
+.p-inputswitch-slider {
+  background: #2a4acb;
+}
+
+
+label {
+  /*TODO: FONT.*/
+  font-family: 'Arial', sans-serif; /* Вы можете выбрать другой шрифт */
+  font-size: 16px; /* Установите размер, который вам подходит */
+  margin-right: 8px;
+}
+
+/* Стиль для родительского элемента, содержащего label и компонент */
+.p-field-checkbox, .p-field {
+  display: flex;
+  align-items: center; /* Вертикальное выравнивание */
+  justify-content: flex-start; /* Горизонтальное выравнивание (если потребуется) */
+  gap: 1rem; /* Промежуток между элементами (если поддерживается) */
+}
