@@ -11,8 +11,11 @@ export class QueryService {
   constructor(private http: HttpClient) { }
 
   getOfficesInRadius(lat: number, lng: number, radius: number): Observable<any[]>{
-
     return this.http.post<any[]>(BASE + "/office/search_in_box", {lat,lng,radius})
-
   }
+
+  searchRoute(lat: number, lng: number, radius: number): Observable<any[]>{
+    return this.http.post<any[]>(BASE + "/office/search2", {lat,lng,radius})
+  }
+
 }

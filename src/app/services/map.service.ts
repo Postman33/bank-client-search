@@ -5,7 +5,7 @@ import {Point} from "@turf/helpers/dist/js/lib/geojson";
 import {of} from "rxjs";
 import {determineLoadCategory, determineWhenToGO, LoadCategory} from "../utils/loadFactor";
 import {Store} from "@ngrx/store";
-import {buildPopup} from "../state/actions";
+import {buildPopup, removePopup} from "../state/actions";
 import {PopupData} from "../state/states";
 
 @Injectable({
@@ -86,7 +86,6 @@ export class MapService {
 
     this.map.on('mouseenter', 'locations', (e) => {
       // Получите объект (feature) и его свойства
-      console.log(e)
       if (e.features) {
         var feature = e.features[0] as MapboxGeoJSONFeature & { properties: Office };
         var address = feature.properties.address;
@@ -107,6 +106,14 @@ export class MapService {
         this.store.dispatch(buildPopup({ payload: data }));
 
       }
+
+
+      this.map.on('mouseleave', 'locations', (e) => {
+        this.store.dispatch(removePopup());
+
+      })
+
+
     });
 
 

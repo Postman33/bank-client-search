@@ -2,10 +2,11 @@ import {Component, OnInit} from '@angular/core';
 import {select, Store} from '@ngrx/store';
 import {Observable} from "rxjs";
 import {selectSidebarVisible} from "../../state/selectors";
-import {toggleSidebar} from "../../state/actions";
+import {buildPopup, setFeaturesRoute, toggleSidebar} from "../../state/actions";
 import {MenuItem} from "primeng/api";
 import {Frames} from "./frames";
 import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
+import {QueryService} from "../../services/query.service";
 
 // Тип обслуживания
 interface TypeService {
@@ -19,7 +20,7 @@ interface TypeService {
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  constructor(private store: Store) {
+  constructor(private store: Store, private queryService: QueryService) {
   }
 
   states =Frames // Импорт Enum
@@ -32,7 +33,11 @@ export class SidebarComponent implements OnInit {
   suggestions: any;
 
   search(event: AutoCompleteCompleteEvent) {
-    this.suggestions = [...Array(10).keys()].map(item => event.query + '-' + item);
+    this.suggestions = [
+      {name: 'Адрес 1', coordinates: '37.6156,55.7522'},
+      {name: 'Адрес 2', coordinates: '36.6156,55.7522'},
+    ];
+    console.log(event)
   }
 
   // ФОРМА
@@ -44,7 +49,10 @@ export class SidebarComponent implements OnInit {
     suoAvailability: undefined,
     officeType: undefined,
     kilometers: 1,
-    address: undefined
+    address: {
+      name: "",
+      coordinates:""
+    }
   }
 
   officeTypes: any[] = [
@@ -62,10 +70,6 @@ export class SidebarComponent implements OnInit {
         return
       } //TODO: check
       this.sidbarVisible = visible
-
-
-
-
         this.searchOfficeOptions = [
           { name: 'М', code: 'NY' },
           { name: 'Rome', code: 'RM' },
@@ -95,7 +99,6 @@ export class SidebarComponent implements OnInit {
   }
 
 
-  protected readonly toggleSidebar = toggleSidebar;
   searchOfficeOptions: TypeService[] = [
     {name:"", code:""},
     {name:"", code:""},
@@ -103,4 +106,17 @@ export class SidebarComponent implements OnInit {
     {name:"", code:""}
   ];
 
+  startQueryRoute() {
+    //this.queryService.searchRoute()
+    console.log(this.searchFilters.address)
+    let [lat,lng] = (this.searchFilters?.address?.coordinates! as string).split(",")
+    let res = this.queryService.searchRoute(+lat,+lng,2)
+    res.subscribe( data => {
+      console.log(data)
+      this.store.dispatch(setFeaturesRoute({ payload: data }));
+
+
+
+    })
+  }
 }

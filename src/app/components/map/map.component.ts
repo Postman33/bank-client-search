@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import mapboxgl, {LngLatLike} from "mapbox-gl";
 import * as turf from '@turf/turf';
-import {LineString} from '@turf/turf';
+import {Feature, FeatureCollection, GeoJSONObject, Geometry, LineString} from '@turf/turf';
 
 import Graph from "graphology";
 import {ScrollPanel} from "primeng/scrollpanel";
@@ -10,7 +10,7 @@ import {MapService} from "../../services/map.service";
 import {Store} from "@ngrx/store";
 import {showLoader, toggleSidebar} from "../../state/actions";
 import {QueryService} from "../../services/query.service";
-import {selectPopupData} from "../../state/selectors";
+import {selectFeatureCollection, selectPopupData} from "../../state/selectors";
 import {Point} from "@turf/helpers/dist/js/lib/geojson";
 
 @Component({
@@ -46,7 +46,7 @@ export class MapComponent implements OnInit {
       style: 'mapbox://styles/mapbox/streets-v11',
       center,
       zoom: 9,
-      maxZoom: 13,
+      maxZoom: 19,
       accessToken: "pk.eyJ1IjoicG9zdG1hbjMzIiwiYSI6ImNrdXNxbGh4OTBxanMyd28yanB3eDM4eDEifQ.WrqvvPXOzXuqQMpfkNutCg",
     });
 
@@ -60,10 +60,16 @@ export class MapComponent implements OnInit {
 
     this.map.addControl(new mapboxgl.NavigationControl({}));
 
-    this.store.select(selectPopupData).subscribe(popupData => {
-      console.log(popupData)
 
 
+
+      this.store.select(selectPopupData).subscribe(popupData => {
+
+      if (popupData === null) {
+        this.popup?.remove();
+        this.popup = null;
+        return
+      }
 
       if (this.popup) {
         this.popup.remove();
@@ -71,7 +77,6 @@ export class MapComponent implements OnInit {
       }
 
       if (popupData) {
-        console.log(popupData)
         var popupContent = `<div class="popup-content">
     <h3>
         <span class="pi pi-user"></span>
@@ -103,6 +108,39 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
     this.mapService.setMap(this.map);
     this.map.on("load", ()=>{
       this.isMapLoaded = true
+
+
+
+      this.store.select(selectFeatureCollection).subscribe(featureCollection => {
+        console.log(featureCollection)
+        if (this.map.getLayer("roadLayer")) this.map.removeLayer("roadLayer")
+
+        if (this.map.getSource("roadSource")) this.map.removeSource("roadSource")
+
+        this.map.addSource('roadSource', {
+          type: 'geojson',
+          data: {
+            type:"FeatureCollection",
+            features: featureCollection.features as  any[]
+          }
+
+        });
+
+        this.map.addLayer({
+          id: 'roadLayer',
+          type: 'line',
+          source: 'roadSource',
+          layout: {},
+          paint: {
+            'line-color': '#888888', // или другой цвет по вашему выбору
+            'line-width': 4
+          }
+        });
+
+
+
+      })
+
 
 
       this.map.loadImage('assets/icons8-atm-96.png', (error, image) => {

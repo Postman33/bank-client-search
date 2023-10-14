@@ -14,7 +14,6 @@
 
   <div *ngIf="activeTab?.id === states.SearchOffice" style="padding-top: 10px">
 
-
     <p-card>
       <ng-template pTemplate="header">
         <h3>Ищем отделения</h3>
@@ -49,18 +48,15 @@
         </div>
       </div>
 
-      <!-- Custom Field: Load Type -->
-      <div class="p-col-12">
-        <div class="p-field">
-          <label for="loadType" style="width: 120px">Тип загрузки</label>
-          <input id="loadType" type="text" [(ngModel)]="searchFilters.loadType" pInputText>
-        </div>
-      </div>
-
       <div class="p-col-12" style="margin-top: 10px">
         <div class="p-field">
-          <label for="loadType" style="width: 120px">Ваш адрес</label>
-          <p-autoComplete [(ngModel)]="searchFilters.address" [suggestions]="suggestions" (completeMethod)="search($event)"></p-autoComplete>
+          <label for="loadType" style="width: 140px">Ваш адрес</label>
+          <p-autoComplete [(ngModel)]="searchFilters.address" [suggestions]="suggestions" field="name" (completeMethod)="search($event)" placeholder="Введите адрес" [dropdown]="true">
+            <ng-template let-address pTemplate="item">
+              {{address.name}} ({{address.coordinates}})
+            </ng-template>
+          </p-autoComplete>
+
         </div>
       </div>
 
@@ -85,13 +81,20 @@
 
       <ng-template pTemplate="footer">
         <div style="display: flex; justify-content: center; padding-top: 20px">
-          <button pButton type="button" label="Поиск!"></button>
+          <button pButton type="button" label="Поиск!" (click)="startQueryRoute()"></button>
         </div>
       </ng-template>
     </p-card>
 
 
+    <p-card
+      [style]="{  height: '100%' }"
+    >
+      <ng-template pTemplate="header">
+        <h3>Таблицы</h3>
+      </ng-template>
 
+    </p-card>
 
     <!-- Ваш контент для Frame 1 здесь -->
   </div>
