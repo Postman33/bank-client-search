@@ -127,37 +127,21 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         this.popup = null;
       }
       if (popupData) {
-        let dep_id = popupData.properties.id
-        let hasRamp = popupData.properties.hasRamp ? "pi-check icon-green" : "pi-times icon-red"
-        let rko = popupData.properties.rko ? "pi-briefcase icon-green" : "pi-times icon-red"
-
-        let distance = popupData.properties.distance
-        let station = popupData.properties.metroStation != null ? popupData.properties.metroStation : ""
-        let stationIf = popupData.properties.metroStation != null ? "material-symbols-outlined icon-green" : "material-symbols-outlined icon-red"
-
-        let dep_id2 = popupData.properties.id
-
-
         const popupContent = `<div class="popup-content">
 
-        <div class="popup-title"><span class="material-symbols-outlined icon-green" style="position: relative; bottom: 0px;">account_balance</span>Едем в  № ${dep_id}</div>
+    <div class="popup-section">
+        <div style="display: flex; flex-direction: row; align-content: center; align-items: center">
+        <span class="material-symbols-outlined" style="font-size: 12px">moving</span>
+        <i class="pi" style="margin-left: 13px;"> РАССТОЯНИЕ</i>
+        </div>
+        <span>1.2 км</span>
+    </div>
+    <div class="popup-section" style="margin-bottom: 0">
+        <div><i class="pi pi-clock"> ВРЕМЯ ПУТИ</i></div>
+        <span>~ 14 минут</span>
+    </div>
+    </p></div>`;
 
-
-    <div class="popup-section">
-        <div><span class="${stationIf}" style="position: relative; top: 5px;">train</span>МЕТРО</div>
-        ${station}
-    </div>
-    <div class="popup-section">
-        <div><i class="pi ${hasRamp}"> ПАНДУС</i></div>
-    </div>
-    <div class="popup-section">
-        <div><i class="pi ${rko}"> РКО</i></div>
-    </div>
-    <div class="popup-section">
-        <div><i class="pi pi-clock icon-green"> 08:00 - 21:00</i> </div>
-    </div>
-
-${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         let popup = new mapboxgl.Popup()
           .setLngLat(popupData.coordinates)
           .setHTML(popupContent)
