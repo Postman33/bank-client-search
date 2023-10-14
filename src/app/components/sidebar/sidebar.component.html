@@ -69,7 +69,7 @@
                          spinnerMode="horizontal"
                          decrementButtonClass="p-button-danger" incrementButtonClass="p-button-success"
                          incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" mode="decimal"
-                         [min]="0"
+                         [min]="0" (ngModelChange)="changeFn($event)"
           >
 
           </p-inputNumber>

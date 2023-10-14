@@ -1,15 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import {select, Store} from '@ngrx/store';
-import {Observable} from "rxjs";
+import {Observable, switchMap} from "rxjs";
 import {selectSidebarVisible} from "../../state/selectors";
-import {buildPopupOffice, setFeaturesRoute, toggleSidebar} from "../../state/actions";
+import {setCircleLayerInfo, setFeaturesRoute, setRouteInfo, toggleSidebar} from "../../state/actions";
 import {MenuItem} from "primeng/api";
 import {Frames} from "./frames";
 import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
 import {QueryService} from "../../services/query.service";
-import * as turf from '@turf/turf';
+import {FeatureCollection, LineString} from '@turf/turf';
 import {MapService} from "../../services/map.service";
+import {HttpClient} from "@angular/common/http";
 import {LngLatBoundsLike} from "mapbox-gl";
+import * as turf from '@turf/turf';
 
 // Тип обслуживания
 interface TypeService {
@@ -23,10 +25,11 @@ interface TypeService {
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  constructor(private store: Store, private queryService: QueryService, private mapService: MapService) {
+  constructor(private store: Store, private queryService: QueryService, private mapService: MapService,
+              private http: HttpClient) {
   }
 
-  states =Frames // Импорт Enum
+  states = Frames // Импорт Enum
 
   sidebarVisible = false
   sidebarVisible$: Observable<boolean> = this.store.pipe(select(selectSidebarVisible));
@@ -39,6 +42,8 @@ export class SidebarComponent implements OnInit {
     this.suggestions = [
       {name: 'Адрес 1', coordinates: '37.6156,55.7522'},
       {name: 'Адрес 2', coordinates: '36.6156,55.7522'},
+      {name: 'Адрес 3', coordinates: '37.60883424770236, 55.749154729118544'},
+
     ];
     console.log(event)
   }
@@ -117,16 +122,36 @@ export class SidebarComponent implements OnInit {
   startQueryRoute() {
     //this.queryService.searchRoute()
     console.log(this.searchFilters.address)
-    let [lat,lng] = (this.searchFilters?.address?.coordinates! as string).split(",")
-    let res = this.queryService.searchRoute(+lat,+lng,2)
-    res.subscribe( data => {
+    let [lat, lng] = (this.searchFilters?.address?.coordinates! as string).split(",")
+    this.queryService.searchRoute(+lat, +lng, 2).pipe(
+      switchMap((response: FeatureCollection) => {
+
+        this.store.dispatch(setRouteInfo({payload: response}));
+        let start = response.features[response.features.length - 1]
+        let end = response.features[0]
+        let coords = []
+        coords.push([(start.geometry as LineString).coordinates[0][0], (start.geometry as LineString).coordinates[0][1]]);
+        coords.push([(end.geometry as LineString).coordinates[0][0], (end.geometry as LineString).coordinates[0][1]]);
+
+        const coordinates = coords.join(';');
+        const mapboxDirectionsURL = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordinates}?geometries=geojson&access_token=pk.eyJ1IjoicG9zdG1hbjMzIiwiYSI6ImNrdXNxbGh4OTBxanMyd28yanB3eDM4eDEifQ.WrqvvPXOzXuqQMpfkNutCg`;
+        console.log(mapboxDirectionsURL)
+        // "https://api.mapbox.com/directions/v5/
+        // mapbox/driving/-122.39636,37.79129;-122.39732,37.79283;-122.39606,37.79349?annotations=maxspeed&overview=full&geometries=geojson&access_token=pk.eyJ1IjoicG9zdG1hbjMzIiwiYSI6ImNrdXNxbGh4OTBxanMyd28yanB3eDM4eDEifQ.WrqvvPXOzXuqQMpfkNutCg"
+
+        return this.http.get<any>(mapboxDirectionsURL);
+      })
+    ).subscribe(data => {
       console.log(data)
-      this.store.dispatch(setFeaturesRoute({ payload: data }))
+      let geom = data.routes[0].geometry
+      console.log(`geom ${geom}`)
+      console.log(geom)
+      this.store.dispatch(setFeaturesRoute({ payload: geom }))
       console.log('BBOX')
       console.log(data)
-
-      let ls = turf.lineString(data)
-      var bbox = turf.bbox(data );
+      //TODO: Check
+      let ls = turf.lineString(geom)
+      var bbox = turf.bbox(geom );
       var bboxPolygon = turf.transformScale(turf.bboxPolygon(bbox),2.5);
       console.log(bboxPolygon)
 
@@ -186,5 +211,17 @@ export class SidebarComponent implements OnInit {
       this.selectedAnswer = answer;
     }
     console.log("Вы нажали на:", answer.text);
+  }
+
+  changeFn($event: Event) {
+    this.store.dispatch(setCircleLayerInfo({
+      payload: {
+        coordinates: this.searchFilters.address.coordinates.split(",").map(f => +f),
+        radius: +$event,
+        color: "#f30f0f"
+      }
+    }));
+
+
   }
 }

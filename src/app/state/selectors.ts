@@ -26,3 +26,13 @@ export const selectRoadsData = createSelector(
   featureSelector,
   (mapState) => mapState.routeFeatures
 );
+
+export const selectCircleInfo = createSelector(
+  featureSelector,
+  (mapState) => mapState.circleInputInfoLayer
+);
+
+export const selectRouteInfo = createSelector(
+  featureSelector,
+  (mapState) => mapState.routeInfo
+);

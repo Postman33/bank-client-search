@@ -5,11 +5,18 @@ import {MapService} from "../../services/map.service";
 import {Store} from "@ngrx/store";
 import {buildPopupOffice, buildPopupRoute, removePopups, toggleSidebar} from "../../state/actions";
 import {QueryService} from "../../services/query.service";
-import {selectPopupOData, selectPopupRData, selectRoadsData} from "../../state/selectors";
+import {
+  selectCircleInfo,
+  selectPopupOData,
+  selectPopupRData,
+  selectRoadsData,
+  selectRouteInfo
+} from "../../state/selectors";
 import {Point} from "@turf/helpers/dist/js/lib/geojson";
 import {determineLoadCategory, determineWhenToGO, LoadCategory} from "../../utils/loadFactor";
 import {Office} from "../../utils/models";
 import {PopupDataOffice} from "../../state/states";
+import * as turf from '@turf/turf';
 
 @Component({
   selector: 'app-map',
@@ -164,10 +171,63 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
     this.map.on("load", ()=> {
       this.isMapLoaded = true
+        this.map.on("click",  (e)=>{
+          //let r = this.map.unproject(e.point)
+          //console.log(r)
+        })
+      this.store.select(selectCircleInfo).subscribe(circleData => {
+        if (this.map.getLayer("circleLayer")) this.map.removeLayer("circleLayer")
+        if (this.map.getSource("circleSource")) this.map.removeSource("circleSource")
+
+        // this.mapService.getMap().addSource('circleSource', {
+        //   type: 'geojson',
+        //   data: {
+        //     type: 'FeatureCollection',
+        //     features: [
+        //       {
+        //         type: "Feature",
+        //         geometry: {
+        //           type: 'Point',
+        //           coordinates: circleData.coordinates
+        //         },
+        //         properties: {
+        //           description: '',
+        //           radius: circleData.radius
+        //         }
+        //       }
+        //     ]
+        //   }
+        // });
 
 
-      this.store.select(selectRoadsData).subscribe(featureCollection => {
-        if (featureCollection.features.length == 0) return
+        const circle = turf.circle(circleData.coordinates, circleData.radius, {steps: 100, units: 'kilometers'});
+
+        // Добавляем источник данных с созданным кругом
+        this.map.addSource('circleSource', {
+          type: 'geojson',
+          data: circle
+        });
+
+
+        this.mapService.getMap().addLayer({
+          id: 'circleLayer',
+          type: 'circle',
+          source: 'circleSource',
+          paint: {
+            'circle-color': 'rgba(11,159,239,0.61)'
+          }
+        });
+
+
+
+
+
+      })
+
+
+
+
+        this.store.select(selectRoadsData).subscribe(lineString => {
         if (this.map.getLayer("roadLayer")) this.map.removeLayer("roadLayer")
         if (this.map.getLayer("startPointTextLayer")) this.map.removeLayer("startPointTextLayer")
         if (this.map.getLayer("startPointLayer")) this.map.removeLayer("startPointLayer")
@@ -178,11 +238,10 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
         this.map.addSource('roadSource', {
           type: 'geojson',
-          data: {
-            type:"FeatureCollection",
-            features: featureCollection.features as  any[]
-          }
+          data: lineString
         });
+
+
 
         this.map.addLayer({
           id: 'roadLayer',
@@ -198,44 +257,56 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
         this.map.on('mouseenter', 'roadLayer', (e) => {
           // Получите объект (feature) и его свойства
-          console.log(e)
+          //console.log(e)
           if (e.features) {
-            let data: PopupDataOffice = {
-              name: "123",
-              coordinates: this.map.unproject(e.point),
-              properties: featureCollection.features[0].properties as any
-            }
-            console.log('ENTER MOUSE')
-            console.log(featureCollection.features[0])
-            //this.store.dispatch(buildPopupRoute({payload: data}));
-            this.store.dispatch(buildPopupRoute({payload: data}));
+            console.log(e.features)
 
+
+            this.store.select(selectRouteInfo).subscribe(data => {
+              console.log('IN subscribe')
+              console.log(data.bank_info)
+
+
+               let dt: PopupDataOffice = {
+                 name: "123",
+                 coordinates: this.map.unproject(e.point),
+                 properties: data.bank_info
+               }
+
+              this.store.dispatch(buildPopupRoute({payload: dt}));
+            })
+
+              // let data: PopupDataOffice = {
+            //   name: "123",
+            //   coordinates: this.map.unproject(e.point),
+            //   properties: lineString.coordinates[0].properties as any
+            // }
+            // this.store.dispatch(buildPopupRoute({payload: data}));
           }
         })
 
         this.map.on('mouseleave', 'roadLayer', (e) => {
           this.store.dispatch(removePopups());
-
-
         })
 
-        let coords = (featureCollection.features[featureCollection.features.length - 1].geometry as Point).coordinates
-        let coordsBank = (featureCollection.features[0].geometry as Point).coordinates
+        let coords = (lineString.coordinates[0])
+        let coordsBank = lineString.coordinates[lineString.coordinates.length - 1]
+          console.log(lineString)
 
-        const me = coords[coords.length - 1]
+          console.log(coordsBank)
+          console.log(coords)
         // TODO: Check type
         // @ts-ignore
-        let firstMe = me[0]
+        let firstMe = coords[0]
         // @ts-ignore
-        let secondMe = me[1]
+        let secondMe = coords[1]
 
 
-        const bank = coordsBank[0]
         // TODO: Check type
         // @ts-ignore
-        let firstBank = bank[0]
+        let firstBank = coordsBank[0]
         // @ts-ignore
-        let secondBank = bank[1]
+        let secondBank = coordsBank[1]
 
         this.mapService.getMap().addSource('startPointSource', {
           type: 'geojson',
@@ -422,7 +493,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
       this.map.on('click', 'locations', (e) => {
         let features: MapboxGeoJSONFeature[] = this.map.queryRenderedFeatures(e.point, {layers: ["locations"]})
         let feature = (e.features as MapboxGeoJSONFeature[])[0]
-        console.log(features)
         this.map.flyTo({
 
           center: (features[0].geometry as Point).coordinates as LngLatLike,
@@ -431,7 +501,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         })
 
 
-        console.log((feature.geometry as Point).coordinates)
 
       })
 

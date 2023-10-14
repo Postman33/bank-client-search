@@ -1,7 +1,7 @@
 import {createReducer, on} from '@ngrx/store';
 import {appInitialState} from './states';
 import * as Actions from './actions';
-import {buildPopupRoute, setFeaturesRoute} from './actions';
+import {buildPopupRoute, setCircleLayerInfo, setFeaturesRoute} from './actions';
 
 export const sidebarLoaderReducer = createReducer(
   appInitialState,
@@ -31,4 +31,12 @@ export const sidebarLoaderReducer = createReducer(
   on(Actions.setFeaturesRoute, (state, { payload }) => {
     console.log('setFeaturesRoute')
     return({ ...state, routeFeatures: payload })}),
+
+  on(Actions.setCircleLayerInfo, (state, { payload }) => {
+    return({ ...state, circleInputInfoLayer: payload })}),
+
+  on(Actions.setRouteInfo, (state, { payload }) => {
+    return({ ...state, routeInfo: payload })}),
 );
+
+
