@@ -1,17 +1,15 @@
-import {Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import mapboxgl, {LngLatLike} from "mapbox-gl";
-import * as turf from '@turf/turf';
-import {Feature, FeatureCollection, GeoJSONObject, Geometry, LineString} from '@turf/turf';
-
-import Graph from "graphology";
+import {Component, OnInit, ViewChild} from '@angular/core';
+import mapboxgl, {LngLatLike, MapboxGeoJSONFeature} from "mapbox-gl";
 import {ScrollPanel} from "primeng/scrollpanel";
-import {range} from "rxjs";
 import {MapService} from "../../services/map.service";
 import {Store} from "@ngrx/store";
-import {showLoader, toggleSidebar} from "../../state/actions";
+import {buildPopup, removePopup, toggleSidebar} from "../../state/actions";
 import {QueryService} from "../../services/query.service";
-import {selectFeatureCollection, selectPopupData} from "../../state/selectors";
+import {selectPopupData, selectRoadsData} from "../../state/selectors";
 import {Point} from "@turf/helpers/dist/js/lib/geojson";
+import {determineLoadCategory, determineWhenToGO, LoadCategory} from "../../utils/loadFactor";
+import {Office} from "../../utils/models";
+import {PopupData} from "../../state/states";
 
 @Component({
   selector: 'app-map',
@@ -123,16 +121,19 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
 
 
-    this.map.on("load", ()=>{
+    this.map.on("load", ()=> {
       this.isMapLoaded = true
 
 
-
-      this.store.select(selectFeatureCollection).subscribe(featureCollection => {
-        console.log(featureCollection)
+      this.store.select(selectRoadsData).subscribe(featureCollection => {
+        if (featureCollection.features.length == 0) return
         if (this.map.getLayer("roadLayer")) this.map.removeLayer("roadLayer")
+        if (this.map.getLayer("startPointTextLayer")) this.map.removeLayer("startPointTextLayer")
+        if (this.map.getLayer("startPointLayer")) this.map.removeLayer("startPointLayer")
 
+        if (this.map.getSource("startPointSource")) this.map.removeSource("startPointSource")
         if (this.map.getSource("roadSource")) this.map.removeSource("roadSource")
+
 
         this.map.addSource('roadSource', {
           type: 'geojson',
@@ -140,7 +141,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
             type:"FeatureCollection",
             features: featureCollection.features as  any[]
           }
-
         });
 
         this.map.addLayer({
@@ -149,28 +149,97 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           source: 'roadSource',
           layout: {},
           paint: {
-            'line-color': '#888888', // или другой цвет по вашему выбору
-            'line-width': 4
+            'line-color': '#2bbae7', // или другой цвет по вашему выбору
+            'line-width': 6
+          }
+        });
+
+        let coords = (featureCollection.features[featureCollection.features.length - 1].geometry as Point).coordinates
+        let coordsBank = (featureCollection.features[0].geometry as Point).coordinates
+
+        const me = coords[coords.length - 1]
+        // TODO: Check type
+        // @ts-ignore
+        let firstMe = me[0]
+        // @ts-ignore
+        let secondMe = me[1]
+
+
+        const bank = coordsBank[0]
+        // TODO: Check type
+        // @ts-ignore
+        let firstBank = bank[0]
+        // @ts-ignore
+        let secondBank = bank[1]
+
+        this.mapService.getMap().addSource('startPointSource', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: 'Point',
+                  coordinates: [firstMe, secondMe]
+                },
+                properties: {
+                  description: 'Я'
+                }
+              },
+              {
+                type: "Feature",
+                geometry: {
+                  type: 'Point',
+                  coordinates: [firstBank, secondBank]
+                },
+                properties: {
+                  description: 'Банк'
+                }
+              },
+
+
+            ]
           }
         });
 
 
+        this.mapService.getMap().addLayer({
+          id: 'startPointLayer',
+          type: 'circle',
+          source: 'startPointSource',
+          paint: {
+            'circle-radius': 10,
+            'circle-color': '#007cbf'
+          }
+        });
 
-      })
+// Добавляем слой текста поверх точки начала маршрута
+        this.mapService.getMap().addLayer({
+          id: 'startPointTextLayer',
+          type: 'symbol',
+          source: 'startPointSource',
+          layout: {
+            'text-field': ['get', 'description'], // здесь мы используем данные из свойства 'description'
+            'text-anchor': 'bottom',
+            'text-offset': [0, -0.4] // поднимаем текст чуть выше круга для лучшей видимости
+          },
+          paint: {
+            'text-color': '#000000'
+          }
+        });
 
+      }) // Subscribe end
 
-
+      // Подгрузка иконки.
       this.map.loadImage('assets/icons8-atm-96.png', (error, image) => {
         if (error) throw error;
-        // add image to the active style and make it SDF-enabled
-        // @ts-ignore
-        this.map.addImage('atm', image, { sdf: true});
+        this.map.addImage('atm', image as ImageBitmap, {sdf: true});
 
-        this.queryService.getOfficesInRadius((center as number[])[0],(center as number[])[1],45).subscribe((data: any[])=>{
-
-          console.log('DATA')
-          console.log(data)
-          this.mapService.addLayers(data)
+        // Первичный показ офисов на карте в радиусе 45 км
+        this.queryService.getOfficesInRadius((center as number[])[0], (center as number[])[1], 45).subscribe((data: any[]) => {
+          if (!data) return
+          this.addLayers(data)
         })
 
 
@@ -183,8 +252,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
   }
 
 
-
-
   toggleSidebar() {
     this.store.dispatch(toggleSidebar());
   }
@@ -195,5 +262,117 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
   hideSidebar() {
   }
 
+
+  addLayers(data: any[]) {
+    this.map.addSource('locations', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: data.map(function (office) {
+
+          // TODO: Office type
+          return {
+            type: 'Feature',
+            properties: {
+              ...office,
+              address: office.address,
+              loadFactor: office.loadFactor,
+              loadType: determineLoadCategory(office.loadFactor),
+              whenToGo: determineWhenToGO(office.loadFactor),
+            },
+            geometry: office.location
+          };
+        })
+      }
+    });
+
+    this.map.addLayer({
+      id: 'locations',
+      type: 'symbol',
+      source: 'locations',
+      layout: {
+        'icon-image': ['match', ['get', 'loadFactor'],
+          50, 'atm', // Если loadFactor > 50, используем красную иконку
+          'atm' // Иначе используем синюю иконку
+        ],
+        // 'icon-allow-overlap': true,
+        // 'symbol-sort-key': ['get', 'loadFactor'],
+        'icon-size': {
+          stops: [
+            [10, 0.3],  // Меньший размер на низких уровнях масштабирования
+            [18, 0.4]   // Больший размер на высоких уровнях масштабирования
+          ]
+        }
+      },
+      paint: {
+
+
+        "icon-color": ['match', ['get', 'loadType'],
+          LoadCategory.CRITICAL, '#c20606',
+          LoadCategory.HIGH, '#c97408',
+          LoadCategory.AVERAGE, '#b2bb07',
+          LoadCategory.LOW, '#2c7c2e',
+          '#0094fd'
+        ],
+        // 'icon-halo-color': 'rgba(0,0,0,0.22)', // Цвет свечения с альфа-каналом
+        // 'icon-halo-width': 6, // Ширина свечения
+
+      }
+
+    });
+
+
+    //this.map.setLayerZoomRange('locations', 7, 18)
+
+
+    this.map.on('mouseenter', 'locations', (e) => {
+      // Получите объект (feature) и его свойства
+      if (e.features) {
+        var feature = e.features[0] as MapboxGeoJSONFeature & { properties: Office };
+        var address = feature.properties.address;
+        var loadFactor = feature.properties.loadFactor;
+
+
+        // Создайте HTML-содержимое для информационного окна
+
+
+        // Показать информационное окно над объектом
+
+        let data: PopupData = {
+          name: "123",
+          coordinates: (feature.geometry as Point).coordinates as LngLatLike,
+          properties: feature.properties
+        }
+
+        this.store.dispatch(buildPopup({payload: data}));
+
+      }
+
+
+      this.map.on('mouseleave', 'locations', (e) => {
+        this.store.dispatch(removePopup());
+
+      })
+      // todo: почему оно вызывается на некоторых feature несколько раз?
+      this.map.on('click', 'locations', (e) => {
+        let features: MapboxGeoJSONFeature[] = this.map.queryRenderedFeatures(e.point, {layers: ["locations"]})
+        let feature = (e.features as MapboxGeoJSONFeature[])[0]
+        console.log(features)
+        this.map.flyTo({
+
+          center: (features[0].geometry as Point).coordinates as LngLatLike,
+          duration: 1500,
+          zoom: 18
+        })
+
+
+        console.log((feature.geometry as Point).coordinates)
+
+      })
+
+    });
+
+
+  }
 
 }

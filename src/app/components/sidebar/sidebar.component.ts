@@ -28,7 +28,7 @@ export class SidebarComponent implements OnInit {
 
   states =Frames // Импорт Enum
 
-  sidbarVisible = false
+  sidebarVisible = false
   sidebarVisible$: Observable<boolean> = this.store.pipe(select(selectSidebarVisible));
 
   tabsItems: MenuItem[] | undefined;
@@ -68,11 +68,11 @@ export class SidebarComponent implements OnInit {
     this.sidebarVisible$.subscribe(visible => {
       //this.sidebarVisible = visible;
       console.log('1232')
-      if (!this.sidbarVisible && !visible){
-        this.sidbarVisible = true
+      if (!this.sidebarVisible && !visible){
+        this.sidebarVisible = true
         return
       } //TODO: check
-      this.sidbarVisible = visible
+      this.sidebarVisible = visible
 
 
 
@@ -102,7 +102,7 @@ export class SidebarComponent implements OnInit {
 
   toggleSidebarMethod() {
     this.store.dispatch(toggleSidebar());
-    this.sidbarVisible = false
+    this.sidebarVisible = false
   }
 
 
@@ -129,6 +129,8 @@ export class SidebarComponent implements OnInit {
       var bbox = turf.bbox(data );
       var bboxPolygon = turf.transformScale(turf.bboxPolygon(bbox),2.5);
       console.log(bboxPolygon)
+
+
 
       console.log(bbox)
       this.mapService.getMap().fitBounds(bbox as LngLatBoundsLike, {

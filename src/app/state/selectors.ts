@@ -18,7 +18,7 @@ export const selectPopupData = createSelector(
   (mapState) => mapState.popup
 );
 
-export const selectFeatureCollection = createSelector(
+export const selectRoadsData = createSelector(
   featureSelector,
   (mapState) => mapState.routeFeatures
 );
