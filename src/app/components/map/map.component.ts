@@ -1,5 +1,5 @@
 import {Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import mapboxgl from "mapbox-gl";
+import mapboxgl, {LngLatLike} from "mapbox-gl";
 import * as turf from '@turf/turf';
 import {LineString} from '@turf/turf';
 
@@ -9,6 +9,7 @@ import {range} from "rxjs";
 import {MapService} from "../../services/map.service";
 import {Store} from "@ngrx/store";
 import {showLoader, toggleSidebar} from "../../state/actions";
+import {QueryService} from "../../services/query.service";
 
 @Component({
   selector: 'app-map',
@@ -31,14 +32,16 @@ export class MapComponent implements OnInit {
   ]
   @ViewChild('scrollPanel') scrollPanel!: ScrollPanel;
 
-  constructor(private mapService: MapService, private store: Store) {
+  constructor(private mapService: MapService, private store: Store, private queryService: QueryService) {
   }
 
   ngOnInit() {
+
+    let center = [37.6, 55.7] as LngLatLike
     this.map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [37.6, 55.7],
+      center,
       zoom: 9,
       maxZoom: 13,
       accessToken: "pk.eyJ1IjoicG9zdG1hbjMzIiwiYSI6ImNrdXNxbGh4OTBxanMyd28yanB3eDM4eDEifQ.WrqvvPXOzXuqQMpfkNutCg",
@@ -58,8 +61,12 @@ export class MapComponent implements OnInit {
     this.mapService.setMap(this.map);
     this.map.on("load", ()=>{
       this.isMapLoaded = true
-    })
 
+    })
+    this.queryService.getOfficesInRadius((center as number[])[0],(center as number[])[1],10).subscribe(data=>{
+      console.log('DATA')
+      console.log(data)
+    })
   }
 
 
@@ -67,7 +74,7 @@ export class MapComponent implements OnInit {
 
   toggleSidebar() {
     this.store.dispatch(toggleSidebar());
-    this.store.dispatch(showLoader());
+    //this.store.dispatch(showLoader());
   }
 
   showSidebar() {

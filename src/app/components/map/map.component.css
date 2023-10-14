@@ -29,7 +29,7 @@ body { margin: 0; padding: 0; }
 p-button.plus {
   position: absolute;
   top: 110px;
-  right: 1px;
+  left: 1px;
 }
 
 .header-wrapper {
