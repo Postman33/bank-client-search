@@ -40,7 +40,7 @@ import {DropdownModule} from "primeng/dropdown";
     BrowserAnimationsModule,
     ProgressSpinnerModule,
     StoreModule.forRoot({
-      sidebarLoader: sidebarLoaderReducer
+      appState: sidebarLoaderReducer
     }),
     FormsModule,
     InputTextareaModule,

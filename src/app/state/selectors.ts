@@ -1,14 +1,19 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { SidebarLoaderState } from './states';
+import { AppState } from './states';
 
-const selectSidebarLoaderState = createFeatureSelector<SidebarLoaderState>('sidebarLoader');
+const featureSelector = createFeatureSelector<AppState>('appState');
 
 export const selectSidebarVisible = createSelector(
-  selectSidebarLoaderState,
-  (state: SidebarLoaderState) => state.sidebarVisible
+  featureSelector,
+  (state: AppState) => state.sidebarVisible
 );
 
 export const selectLoaderVisible = createSelector(
-  selectSidebarLoaderState,
-  (state: SidebarLoaderState) => state.loaderVisible
+  featureSelector,
+  (state: AppState) => state.loaderVisible
+);
+
+export const selectPopupData = createSelector(
+  featureSelector,
+  (mapState) => mapState.popup
 );

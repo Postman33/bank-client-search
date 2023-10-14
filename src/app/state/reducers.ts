@@ -1,19 +1,23 @@
 import { createReducer, on } from '@ngrx/store';
-import { initialSidebarLoaderState } from './states';
-import * as SidebarLoaderActions from './actions';
+import { appUnitialState } from './states';
+import * as Actions from './actions';
 
 export const sidebarLoaderReducer = createReducer(
-  initialSidebarLoaderState,
-  on(SidebarLoaderActions.toggleSidebar, (state) => ({
+  appUnitialState,
+  on(Actions.toggleSidebar, (state) => ({
     ...state,
     sidebarVisible: !state.sidebarVisible
   })),
-  on(SidebarLoaderActions.showLoader, (state) => ({
+  on(Actions.showLoader, (state) => ({
     ...state,
     loaderVisible: true
   })),
-  on(SidebarLoaderActions.hideLoader, (state) => ({
+  on(Actions.hideLoader, (state) => ({
     ...state,
     loaderVisible: false
-  }))
+  })),
+  on(Actions.buildPopup, (state, { payload }) => {
+    console.log('build')
+    return({ ...state, popup: payload })}),
+
 );

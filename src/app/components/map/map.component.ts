@@ -10,6 +10,8 @@ import {MapService} from "../../services/map.service";
 import {Store} from "@ngrx/store";
 import {showLoader, toggleSidebar} from "../../state/actions";
 import {QueryService} from "../../services/query.service";
+import {selectPopupData} from "../../state/selectors";
+import {Point} from "@turf/helpers/dist/js/lib/geojson";
 
 @Component({
   selector: 'app-map',
@@ -20,6 +22,7 @@ export class MapComponent implements OnInit {
   map: mapboxgl.Map = {} as mapboxgl.Map;
   sidebarStatusIsActive = true;
   isMapLoaded = false
+  popup!: mapboxgl.Popup | null;
 
   routesColors = [
     '#ff0000',
@@ -57,16 +60,51 @@ export class MapComponent implements OnInit {
 
     this.map.addControl(new mapboxgl.NavigationControl({}));
 
+    this.store.select(selectPopupData).subscribe(popupData => {
+      console.log(popupData)
+
+
+
+      if (this.popup) {
+        this.popup.remove();
+        this.popup = null;
+      }
+
+      if (popupData) {
+        console.log(popupData)
+        var popupContent = `<h3>${popupData.properties.whenToGo}</h3><p>Load Factor: ${123}</p>`;
+        let popup = new mapboxgl.Popup()
+          .setLngLat(popupData.coordinates)
+          .setHTML(popupContent)
+        this.popup = popup.addTo(this.map);
+      }
+    });
 
     this.mapService.setMap(this.map);
     this.map.on("load", ()=>{
       this.isMapLoaded = true
 
+
+      this.map.loadImage('assets/icons8-atm-96.png', (error, image) => {
+        if (error) throw error;
+        // add image to the active style and make it SDF-enabled
+        // @ts-ignore
+        this.map.addImage('atm', image, { sdf: true});
+
+        this.queryService.getOfficesInRadius((center as number[])[0],(center as number[])[1],10).subscribe((data: any[])=>{
+
+          console.log('DATA')
+          console.log(data)
+          this.mapService.addLayers(data)
+        })
+
+
+      });
+
+
     })
-    this.queryService.getOfficesInRadius((center as number[])[0],(center as number[])[1],10).subscribe(data=>{
-      console.log('DATA')
-      console.log(data)
-    })
+
+
   }
 
 

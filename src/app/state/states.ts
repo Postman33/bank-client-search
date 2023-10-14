@@ -1,9 +1,21 @@
-export interface SidebarLoaderState {
-  sidebarVisible: boolean;
-  loaderVisible: boolean;
+import mapboxgl, {LngLatLike, Point} from "mapbox-gl";
+export interface PopupData {
+
+  name: string
+  coordinates: LngLatLike
+  properties: any
+
 }
 
-export const initialSidebarLoaderState: SidebarLoaderState = {
+export interface AppState {
+  sidebarVisible: boolean;
+  loaderVisible: boolean;
+  popup: PopupData | null
+
+}
+
+export const appUnitialState: AppState = {
   sidebarVisible: false,
   loaderVisible: false,
+  popup: null
 };
