@@ -72,7 +72,11 @@ export class MapComponent implements OnInit {
 
       if (popupData) {
         console.log(popupData)
-        var popupContent = `<h3>${popupData.properties.whenToGo}</h3><p>Load Factor: ${123}</p>`;
+        var popupContent = `<h3>
+        <span class="pi pi-user"></span>
+        <div>Пандус <i class="pi pi-times" style="color: green"></i></div>
+
+${popupData.properties.whenToGo}</h3><p>Load Factor: ${123}</p>`;
         let popup = new mapboxgl.Popup()
           .setLngLat(popupData.coordinates)
           .setHTML(popupContent)
