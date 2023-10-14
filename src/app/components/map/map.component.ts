@@ -176,6 +176,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           //console.log(r)
         })
       this.store.select(selectCircleInfo).subscribe(circleData => {
+        if (circleData.coordinates.length <= 0) return
         if (this.map.getLayer("circleLayer")) this.map.removeLayer("circleLayer")
         if (this.map.getSource("circleSource")) this.map.removeSource("circleSource")
 
@@ -228,6 +229,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
 
         this.store.select(selectRoadsData).subscribe(lineString => {
+          if (lineString == null || lineString.coordinates.length == 0) return
         if (this.map.getLayer("roadLayer")) this.map.removeLayer("roadLayer")
         if (this.map.getLayer("startPointTextLayer")) this.map.removeLayer("startPointTextLayer")
         if (this.map.getLayer("startPointLayer")) this.map.removeLayer("startPointLayer")
@@ -254,17 +256,13 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           }
         });
 
-
+        // Сборка popup при наведении на слой дорог
         this.map.on('mouseenter', 'roadLayer', (e) => {
-          // Получите объект (feature) и его свойства
-          //console.log(e)
           if (e.features) {
             console.log(e.features)
 
-
             this.store.select(selectRouteInfo).subscribe(data => {
-              console.log('IN subscribe')
-              console.log(data.bank_info)
+              if (data && data.bank_info == null){ return }
 
 
                let dt: PopupDataOffice = {
@@ -275,13 +273,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
               this.store.dispatch(buildPopupRoute({payload: dt}));
             })
-
-              // let data: PopupDataOffice = {
-            //   name: "123",
-            //   coordinates: this.map.unproject(e.point),
-            //   properties: lineString.coordinates[0].properties as any
-            // }
-            // this.store.dispatch(buildPopupRoute({payload: data}));
           }
         })
 
