@@ -15,7 +15,6 @@ body {
   width: 100%;
 }
 
-
 .legend {
   background-color: #fff;
   border-radius: 3px;
@@ -127,7 +126,7 @@ p-button.plus {
 
 .card-highlight {
   opacity: 1;
-  border: 2px solid red; /* или любое другое подсветка на ваш выбор */
+  border: 2px solid red;
 }
 
 .text-with-info-tooltip {
@@ -137,7 +136,7 @@ p-button.plus {
 }
 
 .thin-line {
-  height: 1px !important;; /* Толщина линии */
-  background-color: #000 !important; /* Цвет линии */
-  width: 100% !important;; /* Ширина линии */
+  height: 1px !important;
+  background-color: #000 !important;
+  width: 100% !important;
 }

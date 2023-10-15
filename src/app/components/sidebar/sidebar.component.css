@@ -20,3 +20,37 @@ p-card div {
 label {
   display: inline-block;
 }
+
+.chat-container {
+  width: 100%;      /* This makes sure the chat occupies the full width of its container */
+  height: 100vh;    /* This makes the chat container take up the full height of the viewport */
+  overflow-y: auto; /* To allow scrolling if messages overflow the height */
+  background-color: #f7f7f7;
+  padding: 20px;    /* A little space around chat for aesthetics */
+}
+
+.messages-container {
+  max-height: 90vh; /* Limit the height to 90% of the viewport height to allow space for typing a new message etc. */
+  overflow-y: auto;
+}
+
+.message {
+  display: flex;     /* To align the avatar and the message content horizontally */
+  margin-bottom: 10px;
+}
+
+.bot-message .bot-icon, .user-message .user-icon {
+  width: 30px;      /* Adjust as per your preference */
+  height: 30px;
+}
+
+.user-message {
+  justify-content: flex-end; /* To align user messages to the right */
+}
+
+.messages-container {
+  max-height: 500px;  /* Вы можете изменить это значение в зависимости от ваших нужд */
+  overflow-y: auto;   /* Добавляем вертикальный скролл */
+  border: 1px solid #ccc;  /* Опционально: рамка вокруг области сообщений */
+  padding: 10px;
+}

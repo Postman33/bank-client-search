@@ -107,7 +107,7 @@ export class MapComponent implements OnInit {
         <div><i class="pi pi-clock icon-green"> 08:00 - 21:00</i> </div>
     </div>
 
-${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
+${popupData.properties.whenToGo}</div>`;
         let popup = new mapboxgl.Popup()
           .setLngLat(popupData.coordinates)
           .setHTML(popupContent)
@@ -140,7 +140,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         <div><i class="pi pi-clock"> ВРЕМЯ ПУТИ</i></div>
         <span>~ 14 минут</span>
     </div>
-${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
+</div>`;
         let popup = new mapboxgl.Popup()
           .setLngLat(popupData.coordinates)
           .setHTML(popupContent)
@@ -200,14 +200,11 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         const filter = ['any', ...conditions];
         //this.map.setFilter('locations', filter);
 
-
-
         // Добавляем источник данных с созданным кругом
         this.map.addSource('circleSource', {
           type: 'geojson',
           data: circle
         });
-
 
         this.mapService.getMap().addLayer({
           id: 'circleLayerFILL',
@@ -217,6 +214,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
             'fill-color': 'rgba(11,159,239,0.23)'
           }
         });
+
         this.mapService.getMap().addLayer({
           id: 'circleLayerCIRCLE',
           type: 'circle',
@@ -225,15 +223,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
             'circle-color': 'rgb(11,159,239)'
           }
         });
-
-
-
-
-
       })
-
-
-
 
       this.store.select(selectRoadsData).subscribe(lineString => {
         if (lineString == null || lineString.coordinates.length == 0) return
@@ -295,12 +285,12 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
           console.log(coordsBank)
           console.log(coords)
+
         // TODO: Check type
         // @ts-ignore
         let firstMe = coords[0]
         // @ts-ignore
         let secondMe = coords[1]
-
 
         // TODO: Check type
         // @ts-ignore
@@ -339,7 +329,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           }
         });
 
-
         this.mapService.getMap().addLayer({
           id: 'startPointLayer',
           type: 'circle',
@@ -350,7 +339,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           }
         });
 
-// Добавляем слой текста поверх точки начала маршрута
+        // Добавляем слой текста поверх точки начала маршрута
         this.mapService.getMap().addLayer({
           id: 'startPointTextLayer',
           type: 'symbol',
@@ -365,7 +354,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           }
         });
 
-      }) // Subscribe end
+      })
 
       // Подгрузка иконки.
       this.map.loadImage('assets/icons8-atm-96.png', (error, image) => {
@@ -373,31 +362,17 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         this.map.addImage('atm', image as ImageBitmap, {sdf: true});
 
         // Первичный показ офисов на карте в радиусе 45 км
-        this.queryService.getOfficesInRadius((center as number[])[0], (center as number[])[1], 22).subscribe((data: any[]) => {
+        this.queryService.getOfficesInRadius((center as number[])[0], (center as number[])[1], 100).subscribe((data: any[]) => {
           if (!data) return
           this.addLayers(data)
         })
-
-
       });
-
-
     })
-
-
   }
-
 
   toggleSidebar() {
     this.store.dispatch(toggleSidebar());
   }
-
-  showSidebar() {
-  }
-
-  hideSidebar() {
-  }
-
 
   addLayers(data: any[]) {
     this.map.addSource('locations', {
@@ -476,12 +451,9 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         // 'icon-halo-width': 6, // Ширина свечения
 
       }
-
     });
 
-
     //this.map.setLayerZoomRange('locations', 7, 18)
-
 
     this.map.on('mouseenter', 'locations', (e) => {
       // Получите объект (feature) и его свойства
@@ -489,12 +461,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         var feature = e.features[0] as MapboxGeoJSONFeature & { properties: Office };
         var address = feature.properties.address;
         var loadFactor = feature.properties.loadFactor;
-
-
-        // Создайте HTML-содержимое для информационного окна
-
-
-        // Показать информационное окно над объектом
 
         let data: PopupDataOffice = {
           name: "123",
@@ -506,11 +472,11 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
       }
 
-
       this.map.on('mouseleave', 'locations', (e) => {
         this.store.dispatch(removePopups());
 
       })
+
       // todo: почему оно вызывается на некоторых feature несколько раз?
       this.map.on('click', 'locations', (e) => {
         let features: MapboxGeoJSONFeature[] = this.map.queryRenderedFeatures(e.point, {layers: ["locations"]})
@@ -521,14 +487,8 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           duration: 1500,
           zoom: 18
         })
-
-
-
       })
-
     });
-
-
   }
 
 }

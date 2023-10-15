@@ -40,14 +40,12 @@ export class SidebarComponent implements OnInit {
 
   search(event: AutoCompleteCompleteEvent) {
     this.suggestions = [
-      {name: 'Адрес 1', coordinates: '37.6156,55.7522'},
-      {name: 'Адрес 2', coordinates: '36.6156,55.7522'},
-      {name: 'Адрес 3', coordinates: '37.60883424770236, 55.749154729118544'},
-
+      {name: 'Москва', coordinates: '37.6156,55.7522'},
+      {name: 'Москва', coordinates: '37.60883424770236, 55.749154729118544'},
+      {name: 'Москва', coordinates: '37.40883424770236, 55.749154729118544'},
     ];
   }
 
-  // ФОРМА
   selectedType : TypeService = {name:"", code:""} // тип обслуживания
   searchFilters = {
     rko: false,
@@ -77,9 +75,6 @@ export class SidebarComponent implements OnInit {
       } //TODO: check
       this.sidebarVisible = visible
 
-
-
-
         this.searchOfficeOptions = [
           { name: 'М', code: 'NY' },
           { name: 'Rome', code: 'RM' },
@@ -88,26 +83,22 @@ export class SidebarComponent implements OnInit {
           { name: 'Paris', code: 'PRS' }
         ];
 
-
-
     });
 
 
     this.tabsItems = [
       { label: 'Поиск отделений',id:this.states.SearchOffice, icon: 'pi pi-fw pi-home' },
-      { label: 'Список банкоматов',id:this.states.B,  icon: 'pi pi-fw pi-calendar' },
+      { label: 'ИИ-помощник',id:this.states.B,  icon: 'pi pi-fw pi-reddit' },
       { label: 'Список отделений',id:this.states.C,  icon: 'pi pi-fw pi-pencil' },
     ];
 
     this.activeTab = this.tabsItems[0];
-
   }
 
   toggleSidebarMethod() {
     this.store.dispatch(toggleSidebar());
     this.sidebarVisible = false
   }
-
 
   protected readonly toggleSidebar = toggleSidebar;
   searchOfficeOptions: TypeService[] = [
@@ -151,53 +142,6 @@ export class SidebarComponent implements OnInit {
   }
   test1: any;
 
-  findedElements: any;
-
-  showResponseSection: boolean = false;
-  items: string[] = [];  // предположим, что это список ответов
-
-  // вызывается при нажатии кнопки
-  answers = [
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    {text: 'Ответ 1'},
-    {text: 'Ответ 2'},
-    // ... другие ответы ...
-  ];
-  selectedAnswer: any = null;
-
-  onButtonClick() {
-    // Здесь вы можете добавить логику загрузки данных и присвоения их списку items
-    // ...
-
-    // Затем покажем секцию ответа
-    this.showResponseSection = true;
-  }
-
-  onAnswerClick(answer: any) {
-    // Если уже выбран, снимаем выделение
-    if (this.selectedAnswer === answer) {
-      this.selectedAnswer = null;
-    } else {
-      this.selectedAnswer = answer;
-    }
-    console.log("Вы нажали на:", answer.text);
-  }
-
   changeFn($event: Event) {
     this.store.dispatch(setCircleLayerInfo({
       payload: {
@@ -206,7 +150,5 @@ export class SidebarComponent implements OnInit {
         color: "#f30f0f"
       }
     }));
-
-
   }
 }
