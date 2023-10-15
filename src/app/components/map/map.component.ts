@@ -140,8 +140,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         <div><i class="pi pi-clock"> ВРЕМЯ ПУТИ</i></div>
         <span>~ 14 минут</span>
     </div>
-    </p></div>`;
-
+${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         let popup = new mapboxgl.Popup()
           .setLngLat(popupData.coordinates)
           .setHTML(popupContent)
@@ -151,9 +150,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
     this.mapService.setMap(this.map);
 
-
-
-    this.map.on("load", ()=> {
+    this.map.on("load", () => {
       this.isMapLoaded = true
         this.map.on("click",  (e)=>{
           //let r = this.map.unproject(e.point)
@@ -161,7 +158,9 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         })
       this.store.select(selectCircleInfo).subscribe(circleData => {
         if (circleData.coordinates.length <= 0) return
-        if (this.map.getLayer("circleLayer")) this.map.removeLayer("circleLayer")
+        if (this.map.getLayer("circleLayerFILL")) this.map.removeLayer("circleLayerFILL")
+        if (this.map.getLayer("circleLayerCIRCLE")) this.map.removeLayer("circleLayerCIRCLE")
+
         if (this.map.getSource("circleSource")) this.map.removeSource("circleSource")
 
         // this.mapService.getMap().addSource('circleSource', {
@@ -187,6 +186,22 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
         const circle = turf.circle(circleData.coordinates, circleData.radius, {steps: 100, units: 'kilometers'});
 
+        const features = this.map.queryRenderedFeatures(undefined,{ layers: ['locations'] });
+        const featuresInsideCircle = features.filter(feature => {
+          // Предположим, что каждый объект имеет геометрию типа "Point"
+          return turf.booleanPointInPolygon((feature.geometry as Point).coordinates, circle);
+        })
+        console.log(featuresInsideCircle)
+        const idsInsideCircle = featuresInsideCircle.map(feature => {
+          return (feature.properties as any).id ;
+        });
+        console.log(idsInsideCircle)
+        const conditions = idsInsideCircle.map(id => ['==', ['get', 'id'], id]);
+        const filter = ['any', ...conditions];
+        //this.map.setFilter('locations', filter);
+
+
+
         // Добавляем источник данных с созданным кругом
         this.map.addSource('circleSource', {
           type: 'geojson',
@@ -195,11 +210,19 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
 
         this.mapService.getMap().addLayer({
-          id: 'circleLayer',
+          id: 'circleLayerFILL',
+          type: 'fill',
+          source: 'circleSource',
+          paint: {
+            'fill-color': 'rgba(11,159,239,0.23)'
+          }
+        });
+        this.mapService.getMap().addLayer({
+          id: 'circleLayerCIRCLE',
           type: 'circle',
           source: 'circleSource',
           paint: {
-            'circle-color': 'rgba(11,159,239,0.61)'
+            'circle-color': 'rgb(11,159,239)'
           }
         });
 
@@ -212,8 +235,8 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
 
 
-        this.store.select(selectRoadsData).subscribe(lineString => {
-          if (lineString == null || lineString.coordinates.length == 0) return
+      this.store.select(selectRoadsData).subscribe(lineString => {
+        if (lineString == null || lineString.coordinates.length == 0) return
         if (this.map.getLayer("roadLayer")) this.map.removeLayer("roadLayer")
         if (this.map.getLayer("startPointTextLayer")) this.map.removeLayer("startPointTextLayer")
         if (this.map.getLayer("startPointLayer")) this.map.removeLayer("startPointLayer")
@@ -246,14 +269,16 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
             console.log(e.features)
 
             this.store.select(selectRouteInfo).subscribe(data => {
-              if (data && data.bank_info == null){ return }
+              if (data && data.bank_info == null) {
+                return
+              }
 
 
-               let dt: PopupDataOffice = {
-                 name: "123",
-                 coordinates: this.map.unproject(e.point),
-                 properties: data.bank_info
-               }
+              let dt: PopupDataOffice = {
+                name: "123",
+                coordinates: this.map.unproject(e.point),
+                properties: data.bank_info
+              }
 
               this.store.dispatch(buildPopupRoute({payload: dt}));
             })
@@ -348,7 +373,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         this.map.addImage('atm', image as ImageBitmap, {sdf: true});
 
         // Первичный показ офисов на карте в радиусе 45 км
-        this.queryService.getOfficesInRadius((center as number[])[0], (center as number[])[1], 45).subscribe((data: any[]) => {
+        this.queryService.getOfficesInRadius((center as number[])[0], (center as number[])[1], 22).subscribe((data: any[]) => {
           if (!data) return
           this.addLayers(data)
         })
@@ -416,8 +441,6 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         }
       },
       paint: {
-
-
         "icon-color": ['match', ['get', 'loadType'],
           LoadCategory.CRITICAL, '#c20606',
           LoadCategory.HIGH, '#c97408',
@@ -425,6 +448,30 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           LoadCategory.LOW, '#2c7c2e',
           '#0094fd'
         ],
+
+      }
+
+    });
+    this.map.addLayer({
+      id: 'locations_transparent',
+      type: 'symbol',
+      source: 'locations',
+      layout: {
+        'icon-image': ['match', ['get', 'loadFactor'],
+          50, 'atm', // Если loadFactor > 50, используем красную иконку
+          'atm' // Иначе используем синюю иконку
+        ],
+        // 'icon-allow-overlap': true,
+        // 'symbol-sort-key': ['get', 'loadFactor'],
+        'icon-size': {
+          stops: [
+            [10, 0.3],  // Меньший размер на низких уровнях масштабирования
+            [18, 0.4]   // Больший размер на высоких уровнях масштабирования
+          ]
+        }
+      },
+      paint: {
+        "icon-color": 'rgba(255,255,255,0.01)'
         // 'icon-halo-color': 'rgba(0,0,0,0.22)', // Цвет свечения с альфа-каналом
         // 'icon-halo-width': 6, // Ширина свечения
 

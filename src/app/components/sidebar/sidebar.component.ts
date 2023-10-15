@@ -45,7 +45,6 @@ export class SidebarComponent implements OnInit {
       {name: 'Адрес 3', coordinates: '37.60883424770236, 55.749154729118544'},
 
     ];
-    console.log(event)
   }
 
   // ФОРМА
@@ -72,7 +71,6 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.sidebarVisible$.subscribe(visible => {
       //this.sidebarVisible = visible;
-      console.log('1232')
       if (!this.sidebarVisible && !visible){
         this.sidebarVisible = true
         return
@@ -142,22 +140,9 @@ export class SidebarComponent implements OnInit {
         return this.http.get<any>(mapboxDirectionsURL);
       })
     ).subscribe(data => {
-      console.log(data)
       let geom = data.routes[0].geometry
-      console.log(`geom ${geom}`)
-      console.log(geom)
       this.store.dispatch(setFeaturesRoute({ payload: geom }))
-      console.log('BBOX')
-      console.log(data)
-      //TODO: Check
-      let ls = turf.lineString(geom)
-      var bbox = turf.bbox(geom );
-      var bboxPolygon = turf.transformScale(turf.bboxPolygon(bbox),2.5);
-      console.log(bboxPolygon)
-
-
-
-      console.log(bbox)
+      const bbox = turf.bbox(geom);
       this.mapService.getMap().fitBounds(bbox as LngLatBoundsLike, {
         duration: 2000,
         zoom: 15

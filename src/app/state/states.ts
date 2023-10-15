@@ -7,6 +7,8 @@ export interface PopupDataOffice {
   coordinates: LngLatLike
   properties: Office
 }
+
+// Пример данных об маршруте. Не прокидывается сейчас.
 export interface RouteData {
   routeTime: string, // 12 min
   routeType: string, // Пеший или авто

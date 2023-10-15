@@ -12,8 +12,6 @@ export const removePopups = createAction('[Popup] removePopups');
 export const buildPopupRoute = createAction('[Popup]buildPopupRoute', props<{ payload: any }>() );
 
 
-
-
 export const setFeaturesRoute = createAction('[Route] setFeaturesRoute', props<{ payload: any }>() );
 export const setCircleLayerInfo = createAction('[Route] setCircleLayerInfo', props<{ payload: CircleInputInfoLayer }>() );
 export const setRouteInfo = createAction('[Route] setRouteInfo', props<{ payload: any }>() );
