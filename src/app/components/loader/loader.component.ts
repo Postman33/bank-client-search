@@ -14,8 +14,6 @@ export class LoaderComponent implements OnInit {
   constructor(private store: Store) {
   }
 
-
-
 ngOnInit(){
   this.store.select(selectLoaderVisible).subscribe(show => {
     console.log(show)

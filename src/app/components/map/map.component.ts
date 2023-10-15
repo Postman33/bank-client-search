@@ -65,7 +65,7 @@ export class MapComponent implements OnInit {
 
     this.map.addControl(new mapboxgl.NavigationControl({}));
 
-    // Подписка на сборку popup office type
+
     this.store.select(selectPopupOData).subscribe(popupData => {
       if (popupData === null) {
         this.popup?.remove();
@@ -107,7 +107,7 @@ export class MapComponent implements OnInit {
         <div><i class="pi pi-clock icon-green"> 08:00 - 21:00</i> </div>
     </div>
 
-${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
+${popupData.properties.whenToGo}</div>`;
         let popup = new mapboxgl.Popup()
           .setLngLat(popupData.coordinates)
           .setHTML(popupContent)
@@ -165,13 +165,35 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
         if (this.map.getSource("circleSource")) this.map.removeSource("circleSource")
 
+        // this.mapService.getMap().addSource('circleSource', {
+        //   type: 'geojson',
+        //   data: {
+        //     type: 'FeatureCollection',
+        //     features: [
+        //       {
+        //         type: "Feature",
+        //         geometry: {
+        //           type: 'Point',
+        //           coordinates: circleData.coordinates
+        //         },
+        //         properties: {
+        //           description: '',
+        //           radius: circleData.radius
+        //         }
+        //       }
+        //     ]
+        //   }
+        // });
+
 
         const circle = turf.circle(circleData.coordinates, circleData.radius, {steps: 100, units: 'kilometers'});
 
         const features = this.map.queryRenderedFeatures(undefined,{ layers: ['locations'] });
         const featuresInsideCircle = features.filter(feature => {
+          // Предположим, что каждый объект имеет геометрию типа "Point"
           return turf.booleanPointInPolygon((feature.geometry as Point).coordinates, circle);
         })
+        console.log(featuresInsideCircle)
         const idsInsideCircle = featuresInsideCircle.map(feature => {
           return (feature.properties as any).id ;
         });
@@ -206,11 +228,15 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           }
         });
 
+
+
+
+
       })
 
 
 
-      // Создание слоев и источников для визуалзации дорог
+
       this.store.select(selectRoadsData).subscribe(lineString => {
         if (lineString == null || lineString.coordinates.length == 0) return
         if (this.map.getLayer("roadLayer")) this.map.removeLayer("roadLayer")
@@ -326,7 +352,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           }
         });
 
-    // Добавляем слой текста поверх точки начала маршрута
+// Добавляем слой текста поверх точки начала маршрута
         this.mapService.getMap().addLayer({
           id: 'startPointTextLayer',
           type: 'symbol',
@@ -438,6 +464,12 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         var feature = e.features[0] as MapboxGeoJSONFeature & { properties: Office };
         var address = feature.properties.address;
         var loadFactor = feature.properties.loadFactor;
+
+
+        // Создайте HTML-содержимое для информационного окна
+
+
+        // Показать информационное окно над объектом
 
         let data: PopupDataOffice = {
           name: "123",

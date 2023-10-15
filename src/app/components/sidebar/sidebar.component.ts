@@ -40,10 +40,9 @@ export class SidebarComponent implements OnInit {
 
   search(event: AutoCompleteCompleteEvent) {
     this.suggestions = [
-      {name: 'Адрес 1', coordinates: '37.6156,55.7522'},
-      {name: 'Адрес 2', coordinates: '36.6156,55.7522'},
-      {name: 'Адрес 3', coordinates: '37.60883424770236, 55.749154729118544'},
-
+      {name: 'Москва', coordinates: '37.6156,55.7522'},
+      {name: 'Москва', coordinates: '37.60883424770236, 55.749154729118544'},
+      {name: 'Москва', coordinates: '37.40883424770236, 55.749154729118544'},
     ];
   }
 
@@ -95,7 +94,7 @@ export class SidebarComponent implements OnInit {
 
     this.tabsItems = [
       { label: 'Поиск отделений',id:this.states.SearchOffice, icon: 'pi pi-fw pi-home' },
-      { label: 'Список банкоматов',id:this.states.B,  icon: 'pi pi-fw pi-calendar' },
+      { label: 'ИИ-помощник',id:this.states.B,  icon: 'pi pi-fw pi-reddit' },
       { label: 'Список отделений',id:this.states.C,  icon: 'pi pi-fw pi-pencil' },
     ];
 
