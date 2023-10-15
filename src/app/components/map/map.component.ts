@@ -65,7 +65,7 @@ export class MapComponent implements OnInit {
 
     this.map.addControl(new mapboxgl.NavigationControl({}));
 
-
+    // Подписка на сборку popup office type
     this.store.select(selectPopupOData).subscribe(popupData => {
       if (popupData === null) {
         this.popup?.remove();
@@ -116,6 +116,8 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
     });
     // Route data
 
+    // Подписка на сборку popup route type
+    // Показ информации о маршруте
     this.store.select(selectPopupRData).subscribe(popupData => {
       if (popupData === null) {
         this.popup?.remove();
@@ -152,10 +154,10 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
     this.map.on("load", () => {
       this.isMapLoaded = true
-        this.map.on("click",  (e)=>{
-          //let r = this.map.unproject(e.point)
-          //console.log(r)
-        })
+
+
+
+      // Создание слоев CIRCLE. Визуализация
       this.store.select(selectCircleInfo).subscribe(circleData => {
         if (circleData.coordinates.length <= 0) return
         if (this.map.getLayer("circleLayerFILL")) this.map.removeLayer("circleLayerFILL")
@@ -163,35 +165,13 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
 
         if (this.map.getSource("circleSource")) this.map.removeSource("circleSource")
 
-        // this.mapService.getMap().addSource('circleSource', {
-        //   type: 'geojson',
-        //   data: {
-        //     type: 'FeatureCollection',
-        //     features: [
-        //       {
-        //         type: "Feature",
-        //         geometry: {
-        //           type: 'Point',
-        //           coordinates: circleData.coordinates
-        //         },
-        //         properties: {
-        //           description: '',
-        //           radius: circleData.radius
-        //         }
-        //       }
-        //     ]
-        //   }
-        // });
-
 
         const circle = turf.circle(circleData.coordinates, circleData.radius, {steps: 100, units: 'kilometers'});
 
         const features = this.map.queryRenderedFeatures(undefined,{ layers: ['locations'] });
         const featuresInsideCircle = features.filter(feature => {
-          // Предположим, что каждый объект имеет геометрию типа "Point"
           return turf.booleanPointInPolygon((feature.geometry as Point).coordinates, circle);
         })
-        console.log(featuresInsideCircle)
         const idsInsideCircle = featuresInsideCircle.map(feature => {
           return (feature.properties as any).id ;
         });
@@ -226,15 +206,11 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           }
         });
 
-
-
-
-
       })
 
 
 
-
+      // Создание слоев и источников для визуалзации дорог
       this.store.select(selectRoadsData).subscribe(lineString => {
         if (lineString == null || lineString.coordinates.length == 0) return
         if (this.map.getLayer("roadLayer")) this.map.removeLayer("roadLayer")
@@ -350,7 +326,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
           }
         });
 
-// Добавляем слой текста поверх точки начала маршрута
+    // Добавляем слой текста поверх точки начала маршрута
         this.mapService.getMap().addLayer({
           id: 'startPointTextLayer',
           type: 'symbol',
@@ -398,7 +374,7 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
   hideSidebar() {
   }
 
-
+  // Слои и источники для отделений банка
   addLayers(data: any[]) {
     this.map.addSource('locations', {
       type: 'geojson',
@@ -452,49 +428,16 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
       }
 
     });
-    this.map.addLayer({
-      id: 'locations_transparent',
-      type: 'symbol',
-      source: 'locations',
-      layout: {
-        'icon-image': ['match', ['get', 'loadFactor'],
-          50, 'atm', // Если loadFactor > 50, используем красную иконку
-          'atm' // Иначе используем синюю иконку
-        ],
-        // 'icon-allow-overlap': true,
-        // 'symbol-sort-key': ['get', 'loadFactor'],
-        'icon-size': {
-          stops: [
-            [10, 0.3],  // Меньший размер на низких уровнях масштабирования
-            [18, 0.4]   // Больший размер на высоких уровнях масштабирования
-          ]
-        }
-      },
-      paint: {
-        "icon-color": 'rgba(255,255,255,0.01)'
-        // 'icon-halo-color': 'rgba(0,0,0,0.22)', // Цвет свечения с альфа-каналом
-        // 'icon-halo-width': 6, // Ширина свечения
-
-      }
-
-    });
-
 
     //this.map.setLayerZoomRange('locations', 7, 18)
 
-
+    // Dispatch на сборку popup для показа инфы об отделениях
     this.map.on('mouseenter', 'locations', (e) => {
       // Получите объект (feature) и его свойства
       if (e.features) {
         var feature = e.features[0] as MapboxGeoJSONFeature & { properties: Office };
         var address = feature.properties.address;
         var loadFactor = feature.properties.loadFactor;
-
-
-        // Создайте HTML-содержимое для информационного окна
-
-
-        // Показать информационное окно над объектом
 
         let data: PopupDataOffice = {
           name: "123",
@@ -511,22 +454,23 @@ ${popupData.properties.whenToGo}<p>Load Factor: ${123}</p></div>`;
         this.store.dispatch(removePopups());
 
       })
-      // todo: почему оно вызывается на некоторых feature несколько раз?
-      this.map.on('click', 'locations', (e) => {
-        let features: MapboxGeoJSONFeature[] = this.map.queryRenderedFeatures(e.point, {layers: ["locations"]})
-        let feature = (e.features as MapboxGeoJSONFeature[])[0]
-        this.map.flyTo({
-
-          center: (features[0].geometry as Point).coordinates as LngLatLike,
-          duration: 1500,
-          zoom: 18
-        })
-
-
-
-      })
 
     });
+
+    // todo: почему оно вызывается на некоторых feature несколько раз?
+    this.map.on('click', 'locations', (e) => {
+      let features: MapboxGeoJSONFeature[] = this.map.queryRenderedFeatures(e.point, {layers: ["locations"]})
+      let feature = (e.features as MapboxGeoJSONFeature[])[0]
+      this.map.flyTo({
+
+        center: (features[0].geometry as Point).coordinates as LngLatLike,
+        duration: 1500,
+        zoom: 18
+      })
+
+
+
+    })
 
 
   }

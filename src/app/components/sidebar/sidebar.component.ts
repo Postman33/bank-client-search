@@ -182,7 +182,6 @@ export class SidebarComponent implements OnInit {
 
   onButtonClick() {
     // Здесь вы можете добавить логику загрузки данных и присвоения их списку items
-    // ...
 
     // Затем покажем секцию ответа
     this.showResponseSection = true;
